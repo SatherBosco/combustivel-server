@@ -28,24 +28,23 @@ routes.post("/auth/change-password", authController_1.default.changePassword);
 // TRUCK ------------------------------------------------------------------------
 routes.get("/truck/", truckController_1.default.getAll);
 routes.get("/truck/:truckLicensePlate", truckController_1.default.getOne);
-routes.post("/truck/:truckLicensePlate", truckController_1.default.register);
-routes.put("/truck/:truckLicensePlate", truckController_1.default.update);
-routes.delete("/truck/:truckLicensePlate", truckController_1.default.delete);
+routes.post("/truck/", truckController_1.default.register);
+routes.put("/truck/", truckController_1.default.update);
+routes.delete("/truck/", truckController_1.default.delete);
 // FUEL STATION -----------------------------------------------------------------
 routes.get("/fuel-station/", fuelStationController_1.default.getAll);
-routes.post("/fuel-station/:id", fuelStationController_1.default.register);
-routes.put("/fuel-station/:id", fuelStationController_1.default.update);
-routes.delete("/fuel-station/:id", fuelStationController_1.default.delete);
+routes.post("/fuel-station/", fuelStationController_1.default.register);
+routes.put("/fuel-station/", fuelStationController_1.default.update);
+routes.delete("/fuel-station/", fuelStationController_1.default.delete);
 // USER INFOS -------------------------------------------------------------------
 routes.get("/user-infos/one/:cpf", userInfoController_1.default.getOneDriver);
 routes.get("/user-infos/one-specific-month/:cpf&:dateMonth", userInfoController_1.default.getOneDriverSpecificMonth);
 routes.get("/user-infos/all/:dateMonth", userInfoController_1.default.getAllDrivers);
 // HISTORIC ---------------------------------------------------------------------
-routes.get("/historic/:referenceMonth", historicController_1.default.getAll);
-routes.get("/historic/by-truck/:referenceMonth&:truckLicensePlate", historicController_1.default.getAllByTruck);
-routes.get("/historic/by-user/:referenceMonth&:cpf", historicController_1.default.getAllByUser);
+routes.get("/historic/:initialDate&:finalDate", historicController_1.default.getAll);
+routes.get("/historic/by-truck/:initialDate&:finalDate&:truckLicensePlate", historicController_1.default.getAllByTruck);
+routes.get("/historic/by-user/:initialDate&:finalDate&:cpf", historicController_1.default.getAllByUser);
 routes.post("/historic/", upload.fields([{ name: 'odometer', maxCount: 1 }, { name: 'nota', maxCount: 1 }]), historicController_1.default.register);
-// routes.post("/historic/", upload.array('images', 2), HistoricController.register);
-routes.put("/historic/", historicController_1.default.update);
+// routes.put("/historic/", HistoricController.update);
 routes.delete("/historic/", historicController_1.default.delete);
 exports.default = routes;

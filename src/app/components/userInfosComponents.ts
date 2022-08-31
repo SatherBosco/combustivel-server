@@ -3,12 +3,10 @@ import Truck from "../models/Truck";
 import UserInfos from "../models/UserInfos";
 
 class UserInfosComponents {
-    public async verifyIfUserExist(cpf: string, truckLicensePlate: string, referenceMonth: number) {
-        var userInfos = await UserInfos.findOne({ cpf: cpf, referenceMonth: referenceMonth });
+    public async updateUserInfos(cpf: string, truckAverage: number, referenceMonth: number) {
+        var userInfos = await this.verifyIfUserExist(cpf, referenceMonth);
 
-        if (!userInfos) userInfos = await this.createUserInfos(cpf, truckLicensePlate);
-
-        const obj = await this.updateUserInfos(cpf, referenceMonth, truckLicensePlate);
+        const obj = await this.updateInfos(cpf, truckAverage, referenceMonth);
 
         userInfos.kmTraveled = obj.kmTraveled;
         userInfos.average = obj.average;
@@ -19,14 +17,19 @@ class UserInfosComponents {
 
         return userInfos;
     }
+    
+    private async verifyIfUserExist(cpf: string, referenceMonth: number) {
+        var userInfos = await UserInfos.findOne({ cpf: cpf, referenceMonth: referenceMonth });
 
-    public async createUserInfos(cpf: String, truckLicensePlate: String) {
-        var thisMonth = new Date().getMonth() + 1;
+        if (!userInfos) userInfos = await this.createUserInfos(cpf, referenceMonth);
 
+        return userInfos;
+    }
+
+    private async createUserInfos(cpf: string, referenceMonth: number) {
         var accountObj = {
             cpf: cpf,
-            truckLicensePlate: truckLicensePlate,
-            referenceMonth: thisMonth,
+            referenceMonth: referenceMonth,
         };
 
         var userInfos = await UserInfos.create(accountObj);
@@ -34,10 +37,8 @@ class UserInfosComponents {
         return userInfos;
     }
 
-    public async updateUserInfos(cpf: string, referenceMonth: number, truckLicensePlate: string) {
-        var historics = await Historic.find({ user: cpf, referenceMonth: referenceMonth }).sort({ createdAt: 1 });
-
-        var truck = await Truck.findOne({ licensePlate: truckLicensePlate });
+    private async updateInfos(cpf: string, truckAverage: number, referenceMonth: number) {
+        var historics = await Historic.find({ cpf: cpf, referenceMonth: referenceMonth }).sort({ date: 1 });
 
         var infoObj = {
             kmTraveled: 0,
@@ -46,7 +47,7 @@ class UserInfosComponents {
             award: 0,
         };
 
-        if (!historics || historics.length === 0 || !truck) return infoObj;
+        if (!historics || historics.length === 0) return infoObj;
         
         var km = 0;
         var litros = 0;
@@ -58,8 +59,8 @@ class UserInfosComponents {
             var preco = preco + historics[index].value;
         }
         var media = km / litros;
-        var premio = (km / truck.average - litros) * 0.6 * (preco / litros);
         var lastMedia = (historics[historics.length - 1].km) / historics[historics.length - 1].liters;
+        var premio = ((km / truckAverage) - litros) * 0.6 * (preco / litros);
 
         infoObj.kmTraveled = km;
         infoObj.average = media;

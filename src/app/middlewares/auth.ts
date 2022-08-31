@@ -3,7 +3,7 @@ import { verify } from "jsonwebtoken";
 import authConfig from "../../configs/auth.json";
 
 interface DecodedPayload {
-    id: string;
+    cpf: string;
     role: number;
     iat: number;
     exp: number;
@@ -25,9 +25,9 @@ export default function authVerify(req: Request, res: Response, next: NextFuncti
     try {
         const decoded = verify(token, authConfig.secret);
 
-        const { id, role } = decoded as DecodedPayload;
+        const { cpf, role } = decoded as DecodedPayload;
 
-        req.userId = id;
+        req.userCPF = cpf;
         req.role = role;
 
         return next();

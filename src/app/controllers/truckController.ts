@@ -15,7 +15,10 @@ class TruckController {
 
     public async getOne(req: Request, res: Response) {
         try {
-            var truck = await Truck.findOne({ licensePlate: req.params.truckLicensePlate });
+            if (!req.params.licensePlate || req.params.licensePlate === "") return res.status(400).send({ message: "Dados inválidos." });
+
+            var truck = await Truck.findOne({ licensePlate: req.params.licensePlate });
+            
             if (!truck) return res.status(400).send({ message: "Placa não encontrada." });
 
             return res.send({ message: "Caminhão recuperado do banco de dados.", truck });
@@ -24,13 +27,17 @@ class TruckController {
         }
     }
 
-    public async register(req: Request, res: Response) {   
+    public async register(req: Request, res: Response) {
+        const { licensePlate, odometer, capacity, average } = req.body;
         try {
             if (!req.role || req.role > 3) {
                 return res.status(401).send({ message: "Não autorizado." });
             }
 
-            if (await Truck.findOne({ licensePlate: req.params.truckLicensePlate })) return res.status(400).send({ message: "Placa já cadastrada." });
+            if (!licensePlate || licensePlate === "" || !odometer || odometer === "" || !capacity || capacity === "" || !average || average === "")
+                return res.status(400).send({ message: "Dados inválidos." });
+
+            if (await Truck.findOne({ licensePlate: licensePlate })) return res.status(400).send({ message: "Placa já cadastrada." });
 
             var truckObj = req.body;
             await Truck.create(truckObj);
@@ -42,18 +49,21 @@ class TruckController {
     }
 
     public async update(req: Request, res: Response) {
+        const { licensePlate, odometer, capacity, average } = req.body;
         try {
-            if (!req.role || req.role > 3) {
+            if (!req.role || req.role > 3) 
                 return res.status(401).send({ message: "Não autorizado." });
-            }
 
-            var truck = await Truck.findOne({ licensePlate: req.params.truckLicensePlate });
+            if (!licensePlate || licensePlate === "")
+                return res.status(400).send({ message: "Dados inválidos." });
+
+            var truck = await Truck.findOne({ licensePlate: licensePlate });
             if (!truck) return res.status(400).send({ message: "Placa não encontrada." });
 
-            truck.licensePlate = req.body.licensePlate ?? truck.licensePlate;
-            truck.odometer = req.body.odometer ?? truck.odometer;
-            truck.capacity = req.body.capacity ?? truck.capacity;
-            truck.average = req.body.average ?? truck.average;
+            truck.licensePlate = licensePlate ?? truck.licensePlate;
+            truck.odometer = odometer ?? truck.odometer;
+            truck.capacity = capacity ?? truck.capacity;
+            truck.average = average ?? truck.average;
 
             await truck.save();
 
@@ -64,12 +74,15 @@ class TruckController {
     }
 
     public async delete(req: Request, res: Response) {
+        const { licensePlate } = req.body;
         try {
-            if (!req.role || req.role > 3) {
+            if (!req.role || req.role > 3) 
                 return res.status(401).send({ message: "Não autorizado." });
-            }
+            
+            if (!licensePlate || licensePlate === "")
+                return res.status(400).send({ message: "Dados inválidos." });
 
-            await Truck.findOneAndDelete({ licensePlate: req.params.truckLicensePlate });
+            await Truck.findOneAndDelete({ licensePlate: licensePlate });
 
             return res.send({ message: "Caminhão excluido do banco de dados." });
         } catch {

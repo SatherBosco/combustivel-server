@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 
 export interface HistoricInput {
+    fullName: string;
+    cpf: string;
     truckLicensePlate: string;
     date: Date;
     referenceMonth: number;
-    user: string;
     fuelStationName: string;
     previousOdometer: number;
     currentOdometer: number;
@@ -21,6 +22,14 @@ export interface HistoricDocument extends HistoricInput, mongoose.Document {
 }
 
 const HistoricSchema = new mongoose.Schema({
+    fullName: {
+        type: String,
+        required: true,
+    },
+    cpf: {
+        type: String,
+        required: true,
+    },
     truckLicensePlate: {
         type: String,
         required: true,
@@ -31,10 +40,6 @@ const HistoricSchema = new mongoose.Schema({
     },
     referenceMonth: {
         type: Number,
-        required: true,
-    },
-    user: {
-        type: String,
         required: true,
     },
     fuelStationName: {

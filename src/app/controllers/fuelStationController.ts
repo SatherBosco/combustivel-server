@@ -32,13 +32,13 @@ class FuelStationController {
     }
 
     public async update(req: Request, res: Response) {
-        const { name } = req.body;
+        const { id, name } = req.body;
         try {
             if (!req.role || req.role > 3) {
                 return res.status(401).send({ message: "Não autorizado." });
             }
 
-            var fuelStation = await FuelStation.findOne({ _id: req.params.id });
+            var fuelStation = await FuelStation.findOne({ _id: id });
             if (!fuelStation) return res.status(400).send({ message: "Posto não encontrado." });
 
             fuelStation.name = name ?? fuelStation.name;
@@ -52,12 +52,13 @@ class FuelStationController {
     }
 
     public async delete(req: Request, res: Response) {
+        const { id } = req.body;
         try {
             if (!req.role || req.role > 3) {
                 return res.status(401).send({ message: "Não autorizado." });
             }
 
-            await FuelStation.findOneAndDelete({ _id: req.params.id });
+            await FuelStation.findOneAndDelete({ _id: id });
 
             return res.send({ message: "Posto excluido do banco de dados." });
         } catch {

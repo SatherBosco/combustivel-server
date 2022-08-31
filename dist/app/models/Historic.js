@@ -5,6 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const HistoricSchema = new mongoose_1.default.Schema({
+    fullName: {
+        type: String,
+        required: true,
+    },
+    cpf: {
+        type: String,
+        required: true,
+    },
     truckLicensePlate: {
         type: String,
         required: true,
@@ -15,10 +23,6 @@ const HistoricSchema = new mongoose_1.default.Schema({
     },
     referenceMonth: {
         type: Number,
-        required: true,
-    },
-    user: {
-        type: String,
         required: true,
     },
     fuelStationName: {

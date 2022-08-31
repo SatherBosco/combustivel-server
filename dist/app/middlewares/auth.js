@@ -17,8 +17,8 @@ function authVerify(req, res, next) {
         return res.status(401).send({ message: "Erro: Token malformado." });
     try {
         const decoded = (0, jsonwebtoken_1.verify)(token, auth_json_1.default.secret);
-        const { id, role } = decoded;
-        req.userId = id;
+        const { cpf, role } = decoded;
+        req.userCPF = cpf;
         req.role = role;
         return next();
     }

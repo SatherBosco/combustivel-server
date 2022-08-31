@@ -1,20 +1,20 @@
 import { Request, Response } from "express";
 import DeleteFiles from "../components/deleteFilesComponent";
 import UploadImagesService from "../components/uploadImagesComponents";
-import userInfosComponents from "../components/userInfosComponents";
 import UserInfosComponents from "../components/userInfosComponents";
 
 import Historic from "../models/Historic";
 import Truck from "../models/Truck";
+import User from "../models/User";
+import truckController from "./truckController";
 
 class HistoricController {
     public async getAll(req: Request, res: Response) {
-        const referenceMonth = req.params.referenceMonth;
+        const initialDate = new Date(req.params.initialDate);
+        const finalDate = new Date(req.params.finalDate);
 
         try {
-            var historics = await Historic.find({ referenceMonth: referenceMonth });
-
-            if (historics.length === 0) return res.status(400).send({ message: "Abastecimentos para esse mês não encontrados." });
+            var historics = await Historic.find({ date: { $gte: initialDate, $lte: finalDate } });
 
             return res.send({ message: "Lista de abastecimentos recuperada do banco de dados.", historics });
         } catch {
@@ -23,13 +23,12 @@ class HistoricController {
     }
 
     public async getAllByTruck(req: Request, res: Response) {
-        const referenceMonth = req.params.referenceMonth;
         const truckLicensePlate = req.params.truckLicensePlate;
+        const initialDate = new Date(req.params.initialDate);
+        const finalDate = new Date(req.params.finalDate);
 
         try {
-            var historics = await Historic.find({ referenceMonth: referenceMonth, truckLicensePlate: truckLicensePlate });
-
-            if (historics.length === 0) return res.status(400).send({ message: "Abastecimentos para esse mês e placa não encontrados." });
+            var historics = await Historic.find({ date: { $gte: initialDate, $lte: finalDate }, truckLicensePlate: truckLicensePlate });
 
             return res.send({ message: "Lista de abastecimentos recuperada do banco de dados.", historics });
         } catch {
@@ -38,13 +37,12 @@ class HistoricController {
     }
 
     public async getAllByUser(req: Request, res: Response) {
-        const referenceMonth = req.params.referenceMonth;
         const cpf = req.params.cpf;
+        const initialDate = new Date(req.params.initialDate);
+        const finalDate = new Date(req.params.finalDate);
 
         try {
-            var historics = await Historic.find({ referenceMonth: referenceMonth, user: cpf });
-
-            if (historics.length === 0) return res.status(400).send({ message: "Abastecimentos para esse mês e CPF não encontrados." });
+            var historics = await Historic.find({ date: { $gte: initialDate, $lte: finalDate }, cpf: cpf });
 
             return res.send({ message: "Lista de abastecimentos recuperada do banco de dados.", historics });
         } catch {
@@ -53,6 +51,7 @@ class HistoricController {
     }
 
     public async register(req: Request, res: Response) {
+        const { truckLicensePlate, date, cpf, month, fuelStationName, currentOdometerValue, liters, value } = req.body;
         try {
             const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
@@ -63,6 +62,12 @@ class HistoricController {
                 return res.status(400).send({ message: "Sem arquivo." });
             }
 
+            const user = await User.findOne({ cpf: cpf });
+            if (!user) return res.status(400).send({ message: "CPF não encontrado." });
+
+            const truck = await Truck.findOne({ licensePlate: truckLicensePlate });
+            if (!truck) return res.status(400).send({ message: "Caminhão não encontrado." });
+
             const uploadImagesService = new UploadImagesService();
 
             const odometerImage = await uploadImagesService.execute(files["odometer"][0]);
@@ -71,38 +76,16 @@ class HistoricController {
 
             if (!odometerImage.sucess || !notaImage.sucess) return res.status(400).send({ message: !odometerImage.sucess ? odometerImage.message : notaImage.message });
 
-            const { truckLicensePlate, date, cpf, month, fuelStationName, currentOdometerValue, liters, value } = req.body;
-
-            const lastHistoric = await Historic.find({ currentOdometer: { $gt: currentOdometerValue } })
-                .sort({ previousOdometer: -1 })
-                .limit(1);
-            var previousOdometerValue = 0;
-            const truck = await Truck.findOne({ licensePlate: truckLicensePlate });
-            if (lastHistoric && lastHistoric.length > 0) {
-                previousOdometerValue = lastHistoric[0].currentOdometer;
-            } else {
-                if (truck) {
-                    previousOdometerValue = truck.odometer;
-                } else {
-                    return res.status(400).send({ message: "Erro ao encontrar o caminhão especificado." });
-                }
-            }
-
-            if (truck) {
-                if (truck.odometer < currentOdometerValue) {
-                    truck.odometer = currentOdometerValue;
-                    await truck.save();
-                }
-            }
-
+            const previousOdometerValue = truck.odometer;
             const kmValue = currentOdometerValue - previousOdometerValue;
             const averageValue = kmValue / liters;
 
             var historicObj = {
+                fullName: user.fullName,
+                cpf: cpf,
                 truckLicensePlate: truckLicensePlate,
-                date: date,
+                date: new Date(date),
                 referenceMonth: month,
-                user: cpf,
                 fuelStationName: fuelStationName,
                 previousOdometer: previousOdometerValue,
                 currentOdometer: currentOdometerValue,
@@ -114,8 +97,11 @@ class HistoricController {
                 invoiceImage: notaImage.message,
             };
             const historic = await Historic.create(historicObj);
+            
+            truck.odometer = currentOdometerValue;
+            await truck.save();
 
-            const userInfos = await UserInfosComponents.verifyIfUserExist(cpf, truckLicensePlate, month);
+            const userInfos = await UserInfosComponents.updateUserInfos(cpf, truck.average, month);
 
             return res.send({ message: "Abastecimento cadastrado com sucesso.", userInfos, historic });
         } catch {
@@ -123,50 +109,78 @@ class HistoricController {
         }
     }
 
-    public async update(req: Request, res: Response) {
-        const { historicId, cpf } = req.body;
+    // public async update(req: Request, res: Response) {
+    //     const { historicId, odometer, liters, value } = req.body;
 
-        try {
-            if (!req.role) return res.status(401).send({ message: "Não autorizado." });
+    //     try {
+    //         if (!req.role) return res.status(401).send({ message: "Não autorizado." });
 
-            var historic = await Historic.findOne({ _id: historicId });
+    //         var historic = await Historic.findOne({ _id: historicId });
 
-            if (!historic) return res.status(400).send({ message: "Lançamento não encontrado." });
-            if (historic.user !== cpf && req.role > 3) return res.status(400).send({ message: "Não autorizado." });
+    //         if (!historic) return res.status(400).send({ message: "Lançamento não encontrado." });
+    //         if (historic.cpf !== req.userCPF && req.role > 3) return res.status(400).send({ message: "Não autorizado." });
 
-            historic.truckLicensePlate = req.body.truckLicensePlate ?? historic.truckLicensePlate;
-            historic.date = req.body.date ?? historic.date;
-            historic.user = req.body.user ?? historic.user;
-            historic.fuelStationName = req.body.fuelStationName ?? historic.fuelStationName;
-            historic.currentOdometer = req.body.odometer ?? historic.currentOdometer;
-            historic.previousOdometer = req.body.odometer ?? historic.previousOdometer;
-            historic.liters = req.body.liters ?? historic.liters;
-            historic.value = req.body.value ?? historic.value;
-            historic.km = req.body.km ?? historic.km;
-            historic.average = req.body.value ?? historic.average;
+    //         historic.truckLicensePlate = req.body.truckLicensePlate ?? historic.truckLicensePlate;
+    //         historic.date = req.body.date ?? historic.date;
+    //         historic.user = req.body.user ?? historic.user;
+    //         historic.fuelStationName = req.body.fuelStationName ?? historic.fuelStationName;
+    //         historic.currentOdometer = req.body.odometer ?? historic.currentOdometer;
+    //         historic.previousOdometer = req.body.odometer ?? historic.previousOdometer;
+    //         historic.liters = req.body.liters ?? historic.liters;
+    //         historic.value = req.body.value ?? historic.value;
+    //         historic.km = req.body.km ?? historic.km;
+    //         historic.average = req.body.value ?? historic.average;
 
-            await historic.save();
+    //         await historic.save();
 
-            return res.send({ message: "Atualização do lançamento concluído com sucesso." });
-        } catch {
-            return res.status(400).send({ message: "Falha na atualização do lançamento." });
-        }
-    }
+    //         return res.send({ message: "Atualização do lançamento concluído com sucesso." });
+    //     } catch {
+    //         return res.status(400).send({ message: "Falha na atualização do lançamento." });
+    //     }
+    // }
 
     public async delete(req: Request, res: Response) {
-        const { historicId, cpf } = req.body;
+        const { historicId } = req.body;
 
         try {
-            if (!req.role) return res.status(401).send({ message: "Não autorizado." });
+            if (!req.role || !req.userCPF) return res.status(401).send({ message: "Não autorizado." });
 
             var historic = await Historic.findOne({ _id: historicId });
 
             if (!historic) return res.status(400).send({ message: "Lançamento não encontrado." });
-            if (historic.user !== cpf && req.role > 3) return res.status(400).send({ message: "Não autorizado." });
+            if (historic.cpf !== req.userCPF && req.role > 3) return res.status(400).send({ message: "Não autorizado." });
 
+            const historicUp = await Historic.findOne({ truckLicensePlate: historic.truckLicensePlate, previousOdometer: historic.currentOdometer });
+            const historicDown = await Historic.findOne({ truckLicensePlate: historic.truckLicensePlate, currentOdometer: historic.previousOdometer });
+
+            var truck = await Truck.findOne({ licensePlate: historic.truckLicensePlate });
+            if (!truck) return res.status(400).send({ message: "Erro ao localizar o caminhão." });
+
+            if (!historicUp) {
+                if (!historicDown) {
+                    truck.odometer = historic.previousOdometer;
+                    await truck.save();
+                } else {
+                    truck.odometer = historicDown.currentOdometer;
+                    await truck.save();
+                }
+            } else {
+                if (!historicDown) {
+                    historicUp.previousOdometer = historic.previousOdometer;
+                } else {
+                    historicUp.previousOdometer = historicDown.currentOdometer;
+                }
+
+                historicUp.km = historicUp.currentOdometer - historicUp.previousOdometer;
+                historicUp.average = historicUp.km / historicUp.liters;
+                await historicUp.save();
+            }
+            
             await Historic.findOneAndDelete({ _id: historicId });
 
-            return res.send({ message: "Lançamento excluido do banco de dados." });
+            const userInfos = await UserInfosComponents.updateUserInfos(req.userCPF, truck.average, historic.referenceMonth);
+
+            return res.send({ message: "Lançamento excluido do banco de dados.", userInfos });
         } catch {
             return res.status(400).send({ message: "Falha na exclusão do lançamento." });
         }

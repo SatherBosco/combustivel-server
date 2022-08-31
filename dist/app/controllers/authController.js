@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = require("jsonwebtoken");
 const auth_json_1 = __importDefault(require("../../configs/auth.json"));
+const Truck_1 = __importDefault(require("../models/Truck"));
 const User_1 = __importDefault(require("../models/User"));
 function generateToken(params = {}) {
     return (0, jsonwebtoken_1.sign)(params, auth_json_1.default.secret, {
@@ -24,13 +25,18 @@ function generateToken(params = {}) {
 class AuthController {
     register(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { cpf, role } = req.body;
+            const { cpf, firstName, lastName, password, role, truckLicensePlate } = req.body;
             try {
-                if (!req.role || req.role >= role || req.role > 3) {
+                if (!req.role || req.role >= role || req.role > 3)
                     return res.status(401).send({ message: "Não autorizado." });
-                }
                 if (yield User_1.default.findOne({ cpf }))
                     return res.status(400).send({ message: "CPF já registrado." });
+                if (truckLicensePlate && truckLicensePlate !== "") {
+                    if (yield Truck_1.default.findOne({ licensePlate: truckLicensePlate }))
+                        return res.status(400).send({ message: "Placa não existe." });
+                }
+                if (!firstName || firstName === "" || !lastName || lastName === "" || !password || password === "")
+                    return res.status(400).send({ message: "Dados inválidos." });
                 var userObj = req.body;
                 yield User_1.default.create(userObj);
                 return res.send({ message: "Cadastro concluído com sucesso." });
@@ -52,7 +58,7 @@ class AuthController {
                 return res.send({
                     message: "OK",
                     user,
-                    token: generateToken({ id: user === null || user === void 0 ? void 0 : user._id, role: user === null || user === void 0 ? void 0 : user.role }),
+                    token: generateToken({ cpf: user === null || user === void 0 ? void 0 : user.cpf, role: user === null || user === void 0 ? void 0 : user.role }),
                 });
             }
             catch (_a) {
@@ -64,18 +70,16 @@ class AuthController {
         return __awaiter(this, void 0, void 0, function* () {
             const { newPassword, cpf } = req.body;
             try {
-                if (!req.role)
+                if (!req.role || !req.userCPF)
                     return res.status(401).send({ message: "Não autorizado." });
                 var user = yield User_1.default.findOne({ cpf }).select("+password");
                 if (!user)
                     return res.status(400).send({ message: "CPF não encontrado." });
-                if (req.role <= user.role) {
-                    user.password = newPassword;
-                    yield user.save();
-                    return res.send({ message: "Senha alterada com sucesso." });
-                }
-                else
+                if (req.role > user.role || (req.role == user.role && req.userCPF !== user.cpf))
                     return res.status(400).send({ message: "Não autorizado." });
+                user.password = newPassword;
+                yield user.save();
+                return res.send({ message: "Senha alterada com sucesso." });
             }
             catch (_a) {
                 return res.status(400).send({ message: "Falha na alteração da senha." });

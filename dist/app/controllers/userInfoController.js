@@ -12,22 +12,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const userInfosComponents_1 = __importDefault(require("../components/userInfosComponents"));
 const User_1 = __importDefault(require("../models/User"));
 const UserInfos_1 = __importDefault(require("../models/UserInfos"));
-const Truck_1 = __importDefault(require("../models/Truck"));
 class UserInfosController {
     getOneDriver(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const cpf = req.params.cpf;
             try {
-                const thisMonth = new Date().getMonth() + 1;
                 const user = yield User_1.default.findOne({ cpf: cpf });
                 if (!user)
-                    return res.status(400).send({ message: "CPF não encontrado." });
-                const userInfos = yield userInfosComponents_1.default.verifyIfUserExist(cpf, user.truckLicensePlate, thisMonth);
-                const truck = yield Truck_1.default.findOne({ licensePlate: user.truckLicensePlate });
-                return res.send({ message: "Informações do motorista recuperada do banco de dados.", userInfos, truck });
+                    return res.status(400).send({ message: "Usuário não encontrado." });
+                const thisMonth = new Date().getMonth() + 1;
+                const userInfos = yield UserInfos_1.default.findOne({ cpf: cpf, referenceMonth: thisMonth });
+                return res.send({ message: "Informações do motorista recuperada do banco de dados.", userInfos });
             }
             catch (_a) {
                 return res.status(400).send({ message: "Falha na solicitação das informações do motorista." });
@@ -39,9 +36,10 @@ class UserInfosController {
             const cpf = req.params.cpf;
             const dateMonth = req.params.dateMonth;
             try {
-                var userInfos = yield UserInfos_1.default.findOne({ cpf: cpf, referenceMonth: dateMonth });
-                if (!userInfos)
-                    return res.status(400).send({ message: "Nenhuma informação encontrada com esse CPF nesse mês." });
+                const user = yield User_1.default.findOne({ cpf: cpf });
+                if (!user)
+                    return res.status(400).send({ message: "Usuário não encontrado." });
+                const userInfos = yield UserInfos_1.default.findOne({ cpf: cpf, referenceMonth: dateMonth });
                 return res.send({ message: "Informações do motorista recuperada do banco de dados.", userInfos });
             }
             catch (_a) {
@@ -54,8 +52,6 @@ class UserInfosController {
             const dateMonth = req.params.dateMonth;
             try {
                 var usersInfos = yield UserInfos_1.default.find({ referenceMonth: dateMonth });
-                if (!usersInfos || usersInfos.length === 0)
-                    return res.status(400).send({ message: "Nenhuma informação encontrada nesse mês." });
                 return res.send({ message: "Informações dos motoristas recuperada do banco de dados.", usersInfos });
             }
             catch (_a) {

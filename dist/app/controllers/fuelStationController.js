@@ -45,12 +45,12 @@ class FuelStationController {
     }
     update(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { name } = req.body;
+            const { id, name } = req.body;
             try {
                 if (!req.role || req.role > 3) {
                     return res.status(401).send({ message: "Não autorizado." });
                 }
-                var fuelStation = yield FuelStation_1.default.findOne({ _id: req.params.id });
+                var fuelStation = yield FuelStation_1.default.findOne({ _id: id });
                 if (!fuelStation)
                     return res.status(400).send({ message: "Posto não encontrado." });
                 fuelStation.name = name !== null && name !== void 0 ? name : fuelStation.name;
@@ -64,11 +64,12 @@ class FuelStationController {
     }
     delete(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const { id } = req.body;
             try {
                 if (!req.role || req.role > 3) {
                     return res.status(401).send({ message: "Não autorizado." });
                 }
-                yield FuelStation_1.default.findOneAndDelete({ _id: req.params.id });
+                yield FuelStation_1.default.findOneAndDelete({ _id: id });
                 return res.send({ message: "Posto excluido do banco de dados." });
             }
             catch (_a) {

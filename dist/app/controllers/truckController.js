@@ -28,7 +28,9 @@ class TruckController {
     getOne(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                var truck = yield Truck_1.default.findOne({ licensePlate: req.params.truckLicensePlate });
+                if (!req.params.licensePlate || req.params.licensePlate === "")
+                    return res.status(400).send({ message: "Dados inválidos." });
+                var truck = yield Truck_1.default.findOne({ licensePlate: req.params.licensePlate });
                 if (!truck)
                     return res.status(400).send({ message: "Placa não encontrada." });
                 return res.send({ message: "Caminhão recuperado do banco de dados.", truck });
@@ -40,11 +42,14 @@ class TruckController {
     }
     register(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const { licensePlate, odometer, capacity, average } = req.body;
             try {
                 if (!req.role || req.role > 3) {
                     return res.status(401).send({ message: "Não autorizado." });
                 }
-                if (yield Truck_1.default.findOne({ licensePlate: req.params.truckLicensePlate }))
+                if (!licensePlate || licensePlate === "" || !odometer || odometer === "" || !capacity || capacity === "" || !average || average === "")
+                    return res.status(400).send({ message: "Dados inválidos." });
+                if (yield Truck_1.default.findOne({ licensePlate: licensePlate }))
                     return res.status(400).send({ message: "Placa já cadastrada." });
                 var truckObj = req.body;
                 yield Truck_1.default.create(truckObj);
@@ -56,34 +61,37 @@ class TruckController {
         });
     }
     update(req, res) {
-        var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
+            const { licensePlate, odometer, capacity, average } = req.body;
             try {
-                if (!req.role || req.role > 3) {
+                if (!req.role || req.role > 3)
                     return res.status(401).send({ message: "Não autorizado." });
-                }
-                var truck = yield Truck_1.default.findOne({ licensePlate: req.params.truckLicensePlate });
+                if (!licensePlate || licensePlate === "")
+                    return res.status(400).send({ message: "Dados inválidos." });
+                var truck = yield Truck_1.default.findOne({ licensePlate: licensePlate });
                 if (!truck)
                     return res.status(400).send({ message: "Placa não encontrada." });
-                truck.licensePlate = (_a = req.body.licensePlate) !== null && _a !== void 0 ? _a : truck.licensePlate;
-                truck.odometer = (_b = req.body.odometer) !== null && _b !== void 0 ? _b : truck.odometer;
-                truck.capacity = (_c = req.body.capacity) !== null && _c !== void 0 ? _c : truck.capacity;
-                truck.average = (_d = req.body.average) !== null && _d !== void 0 ? _d : truck.average;
+                truck.licensePlate = licensePlate !== null && licensePlate !== void 0 ? licensePlate : truck.licensePlate;
+                truck.odometer = odometer !== null && odometer !== void 0 ? odometer : truck.odometer;
+                truck.capacity = capacity !== null && capacity !== void 0 ? capacity : truck.capacity;
+                truck.average = average !== null && average !== void 0 ? average : truck.average;
                 yield truck.save();
                 return res.send({ message: "Atualização do caminhão concluída com sucesso." });
             }
-            catch (_e) {
+            catch (_a) {
                 return res.status(400).send({ message: "Falha na atualização do caminhão." });
             }
         });
     }
     delete(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            const { licensePlate } = req.body;
             try {
-                if (!req.role || req.role > 3) {
+                if (!req.role || req.role > 3)
                     return res.status(401).send({ message: "Não autorizado." });
-                }
-                yield Truck_1.default.findOneAndDelete({ licensePlate: req.params.truckLicensePlate });
+                if (!licensePlate || licensePlate === "")
+                    return res.status(400).send({ message: "Dados inválidos." });
+                yield Truck_1.default.findOneAndDelete({ licensePlate: licensePlate });
                 return res.send({ message: "Caminhão excluido do banco de dados." });
             }
             catch (_a) {

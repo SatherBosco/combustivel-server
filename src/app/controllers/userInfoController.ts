@@ -1,24 +1,21 @@
 import { Request, Response } from "express";
-import UserInfosComponents from "../components/userInfosComponents";
 import User from "../models/User";
 
 import UserInfos from "../models/UserInfos";
-import Truck from "../models/Truck";
 
 class UserInfosController {
     public async getOneDriver(req: Request, res: Response) {
         const cpf = req.params.cpf;
 
         try {
+            const user = await User.findOne({ cpf: cpf });
+            if (!user) return res.status(400).send({ message: "Usuário não encontrado." });
+            
             const thisMonth = new Date().getMonth() + 1;
 
-            const user = await User.findOne({ cpf: cpf });
-            if (!user) return res.status(400).send({ message: "CPF não encontrado." });
+            const userInfos = await UserInfos.findOne({ cpf: cpf, referenceMonth: thisMonth });
 
-            const userInfos = await UserInfosComponents.verifyIfUserExist(cpf, user.truckLicensePlate, thisMonth);
-            const truck = await Truck.findOne({ licensePlate: user.truckLicensePlate });
-
-            return res.send({ message: "Informações do motorista recuperada do banco de dados.", userInfos, truck });
+            return res.send({ message: "Informações do motorista recuperada do banco de dados.", userInfos });
         } catch {
             return res.status(400).send({ message: "Falha na solicitação das informações do motorista." });
         }
@@ -29,9 +26,10 @@ class UserInfosController {
         const dateMonth = req.params.dateMonth;
 
         try {
-            var userInfos = await UserInfos.findOne({ cpf: cpf, referenceMonth: dateMonth });
+            const user = await User.findOne({ cpf: cpf });
+            if (!user) return res.status(400).send({ message: "Usuário não encontrado." });
 
-            if (!userInfos) return res.status(400).send({ message: "Nenhuma informação encontrada com esse CPF nesse mês." });
+            const userInfos = await UserInfos.findOne({ cpf: cpf, referenceMonth: dateMonth });
 
             return res.send({ message: "Informações do motorista recuperada do banco de dados.", userInfos });
         } catch {
@@ -44,8 +42,6 @@ class UserInfosController {
 
         try {
             var usersInfos = await UserInfos.find({ referenceMonth: dateMonth });
-
-            if (!usersInfos || usersInfos.length === 0) return res.status(400).send({ message: "Nenhuma informação encontrada nesse mês." });
 
             return res.send({ message: "Informações dos motoristas recuperada do banco de dados.", usersInfos });
         } catch {

@@ -13,15 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Historic_1 = __importDefault(require("../models/Historic"));
-const Truck_1 = __importDefault(require("../models/Truck"));
 const UserInfos_1 = __importDefault(require("../models/UserInfos"));
 class UserInfosComponents {
-    verifyIfUserExist(cpf, truckLicensePlate, referenceMonth) {
+    updateUserInfos(cpf, truckAverage, referenceMonth) {
         return __awaiter(this, void 0, void 0, function* () {
-            var userInfos = yield UserInfos_1.default.findOne({ cpf: cpf, referenceMonth: referenceMonth });
-            if (!userInfos)
-                userInfos = yield this.createUserInfos(cpf, truckLicensePlate);
-            const obj = yield this.updateUserInfos(cpf, referenceMonth, truckLicensePlate);
+            var userInfos = yield this.verifyIfUserExist(cpf, referenceMonth);
+            const obj = yield this.updateInfos(cpf, truckAverage, referenceMonth);
             userInfos.kmTraveled = obj.kmTraveled;
             userInfos.average = obj.average;
             userInfos.lastAverage = obj.lastAverage;
@@ -30,29 +27,34 @@ class UserInfosComponents {
             return userInfos;
         });
     }
-    createUserInfos(cpf, truckLicensePlate) {
+    verifyIfUserExist(cpf, referenceMonth) {
         return __awaiter(this, void 0, void 0, function* () {
-            var thisMonth = new Date().getMonth() + 1;
+            var userInfos = yield UserInfos_1.default.findOne({ cpf: cpf, referenceMonth: referenceMonth });
+            if (!userInfos)
+                userInfos = yield this.createUserInfos(cpf, referenceMonth);
+            return userInfos;
+        });
+    }
+    createUserInfos(cpf, referenceMonth) {
+        return __awaiter(this, void 0, void 0, function* () {
             var accountObj = {
                 cpf: cpf,
-                truckLicensePlate: truckLicensePlate,
-                referenceMonth: thisMonth,
+                referenceMonth: referenceMonth,
             };
             var userInfos = yield UserInfos_1.default.create(accountObj);
             return userInfos;
         });
     }
-    updateUserInfos(cpf, referenceMonth, truckLicensePlate) {
+    updateInfos(cpf, truckAverage, referenceMonth) {
         return __awaiter(this, void 0, void 0, function* () {
-            var historics = yield Historic_1.default.find({ user: cpf, referenceMonth: referenceMonth }).sort({ createdAt: 1 });
-            var truck = yield Truck_1.default.findOne({ licensePlate: truckLicensePlate });
+            var historics = yield Historic_1.default.find({ cpf: cpf, referenceMonth: referenceMonth }).sort({ date: 1 });
             var infoObj = {
                 kmTraveled: 0,
                 average: 0,
                 lastAverage: 0,
                 award: 0,
             };
-            if (!historics || historics.length === 0 || !truck)
+            if (!historics || historics.length === 0)
                 return infoObj;
             var km = 0;
             var litros = 0;
@@ -63,8 +65,8 @@ class UserInfosComponents {
                 var preco = preco + historics[index].value;
             }
             var media = km / litros;
-            var premio = (km / truck.average - litros) * 0.6 * (preco / litros);
             var lastMedia = (historics[historics.length - 1].km) / historics[historics.length - 1].liters;
+            var premio = ((km / truckAverage) - litros) * 0.6 * (preco / litros);
             infoObj.kmTraveled = km;
             infoObj.average = media;
             infoObj.lastAverage = lastMedia;
