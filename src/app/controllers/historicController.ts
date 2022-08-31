@@ -77,14 +77,21 @@ class HistoricController {
                 .sort({ previousOdometer: -1 })
                 .limit(1);
             var previousOdometerValue = 0;
+            const truck = await Truck.findOne({ licensePlate: truckLicensePlate });
             if (lastHistoric && lastHistoric.length > 0) {
                 previousOdometerValue = lastHistoric[0].currentOdometer;
             } else {
-                const truck = await Truck.findOne({ licensePlate: truckLicensePlate });
                 if (truck) {
                     previousOdometerValue = truck.odometer;
                 } else {
                     return res.status(400).send({ message: "Erro ao encontrar o caminhão especificado." });
+                }
+            }
+
+            if (truck) {
+                if (truck.odometer < currentOdometerValue) {
+                    truck.odometer = currentOdometerValue;
+                    await truck.save();
                 }
             }
 

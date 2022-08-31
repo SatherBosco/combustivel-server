@@ -35,10 +35,7 @@ class UserInfosComponents {
     }
 
     public async updateUserInfos(cpf: string, referenceMonth: number, truckLicensePlate: string) {
-        var historics = await Historic.find({ user: cpf, referenceMonth: referenceMonth }).sort({ odometer: 1 });
-        var lastHistoric = await Historic.find({ user: cpf, referenceMonth: referenceMonth - 1 })
-            .sort({ odometer: -1 })
-            .limit(1);
+        var historics = await Historic.find({ user: cpf, referenceMonth: referenceMonth }).sort({ createdAt: 1 });
 
         var truck = await Truck.findOne({ licensePlate: truckLicensePlate });
 
@@ -49,22 +46,20 @@ class UserInfosComponents {
             award: 0,
         };
 
-        if (!historics || historics.length === 0 || (!lastHistoric && historics.length <= 1) || (lastHistoric.length === 0 && historics.length <= 1) || !truck) return infoObj;
-        truck.odometer = historics[historics.length - 1].odometer;
-        await truck.save();
+        if (!historics || historics.length === 0 || !truck) return infoObj;
         
-        var km = lastHistoric.length === 0 ? 0 : historics[0].odometer - lastHistoric[0].odometer;
-        var litros = historics[0].liters;
-        var preco = historics[0].value;
+        var km = 0;
+        var litros = 0;
+        var preco = 0;
 
-        for (let index = 1; index < historics.length; index++) {
-            var km = km + historics[index].odometer - historics[index - 1].odometer;
+        for (let index = 0; index < historics.length; index++) {
+            var km = km + historics[index].km;
             var litros = litros + historics[index].liters;
             var preco = preco + historics[index].value;
         }
         var media = km / litros;
         var premio = (km / truck.average - litros) * 0.6 * (preco / litros);
-        var lastMedia = (historics[historics.length - 1].odometer - historics[historics.length - 2].odometer) / historics[historics.length - 1].liters;
+        var lastMedia = (historics[historics.length - 1].km) / historics[historics.length - 1].liters;
 
         infoObj.kmTraveled = km;
         infoObj.average = media;
