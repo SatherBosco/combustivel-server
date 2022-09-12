@@ -10,6 +10,11 @@ const FuelStationSchema = new mongoose_1.default.Schema({
         unique: true,
         required: true,
     },
+    cnpj: {
+        type: String,
+        unique: true,
+        required: true,
+    },
     createdAt: {
         type: Date,
         default: Date.now,

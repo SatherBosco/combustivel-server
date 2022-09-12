@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 export interface FuelStationInput {
     name: string;
+    cnpj: string;
   }
   
   export interface FuelStationDocument extends FuelStationInput, mongoose.Document {
@@ -13,6 +14,11 @@ const FuelStationSchema = new mongoose.Schema({
         type: String,
         unique: true,
         required: true,
+    },
+    cnpj: {
+      type: String,
+      unique: true,
+      required: true,
     },
     createdAt: {
         type: Date,

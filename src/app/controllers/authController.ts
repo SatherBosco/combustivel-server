@@ -27,6 +27,9 @@ class AuthController {
             if (!firstName || firstName === "" || !lastName || lastName === "" || !password || password === "")
                 return res.status(400).send({ message: "Dados inválidos." });
 
+            if (role === 4 && (!truckLicensePlate || truckLicensePlate === ""))
+                return res.status(400).send({ message: "Sem placa para o motorista." });
+
             var userObj = req.body;
             await User.create(userObj);
 
