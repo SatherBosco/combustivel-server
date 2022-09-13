@@ -29,6 +29,10 @@ const HistoricSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
+    cnpj: {
+        type: String,
+        required: true,
+    },
     previousOdometer: {
         type: Number,
         required: true,
