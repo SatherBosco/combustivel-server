@@ -5,7 +5,7 @@ import Price from "../models/Price";
 class PriceController {
     public async getPrice(req: Request, res: Response) {
         try {
-            var price = await Price.findOneAndDelete({ monthDate: req.params.month });
+            var price = await Price.findOne({ monthDate: req.params.month });
 
             return res.send({ message: "Preço retornado com sucesso.", price });
         } catch {

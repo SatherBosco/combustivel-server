@@ -11,11 +11,11 @@ export interface PriceInput {
 
 const PriceSchema = new mongoose.Schema({
     price: {
-        type: String,
+        type: Number,
         required: true,
     },
     monthDate: {
-        type: String,
+        type: Number,
         required: true,
     },
     createdAt: {

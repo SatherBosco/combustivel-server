@@ -17,7 +17,7 @@ class PriceController {
     getPrice(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                var price = yield Price_1.default.findOneAndDelete({ monthDate: req.params.month });
+                var price = yield Price_1.default.findOne({ monthDate: req.params.month });
                 return res.send({ message: "Preço retornado com sucesso.", price });
             }
             catch (_a) {
