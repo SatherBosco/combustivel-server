@@ -14,7 +14,7 @@ class FuelStationController {
     }
 
     public async register(req: Request, res: Response) {
-        const { name } = req.body;
+        const { name, cnpj } = req.body;
         try {
             if (!req.role || req.role > 3) {
                 return res.status(401).send({ message: "Não autorizado." });
@@ -22,7 +22,7 @@ class FuelStationController {
 
             if (await FuelStation.findOne({ name: name })) return res.status(400).send({ message: "Posto já cadastrado." });
 
-            var fuelStationObj = { "name": name };
+            var fuelStationObj = { "name": name, "cnpj": cnpj };
             await FuelStation.create(fuelStationObj);
 
             return res.send({ message: "Cadastro do posto concluído com sucesso." });

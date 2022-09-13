@@ -27,14 +27,14 @@ class FuelStationController {
     }
     register(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { name } = req.body;
+            const { name, cnpj } = req.body;
             try {
                 if (!req.role || req.role > 3) {
                     return res.status(401).send({ message: "Não autorizado." });
                 }
                 if (yield FuelStation_1.default.findOne({ name: name }))
                     return res.status(400).send({ message: "Posto já cadastrado." });
-                var fuelStationObj = { "name": name };
+                var fuelStationObj = { "name": name, "cnpj": cnpj };
                 yield FuelStation_1.default.create(fuelStationObj);
                 return res.send({ message: "Cadastro do posto concluído com sucesso." });
             }
