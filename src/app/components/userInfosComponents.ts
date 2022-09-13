@@ -1,4 +1,5 @@
 import Historic from "../models/Historic";
+import Price from "../models/Price";
 import UserInfos from "../models/UserInfos";
 import preco from "../shared/settings.json"
 
@@ -56,9 +57,14 @@ class UserInfosComponents {
             km = km + historics[index].km;
             litros = litros + historics[index].liters;
         }
+
+        const price = await Price.findOne({ monthDate: referenceMonth });
+
+        if(!price) return infoObj;
+
         var media = km / litros;
         var lastMedia = (historics[historics.length - 1].km) / historics[historics.length - 1].liters;
-        var premio = ((km / truckAverage) - litros) * 0.6 * 7;
+        var premio = ((km / truckAverage) - litros) * 0.6 * price.price;
 
         infoObj.kmTraveled = km;
         infoObj.average = media;

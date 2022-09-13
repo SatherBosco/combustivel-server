@@ -8,6 +8,7 @@ import TruckController from "./controllers/truckController";
 import FuelStationController from "./controllers/fuelStationController";
 import UserInfoController from "./controllers/userInfoController";
 import HistoricController from "./controllers/historicController";
+import PriceController from "./controllers/priceController";
 
 import uploadConfig from './middlewares/upload';
 
@@ -57,6 +58,11 @@ routes.get("/historic/by-user/:initialDate&:finalDate&:cpf", HistoricController.
 routes.post("/historic/", upload.fields([{name: 'odometer', maxCount: 1}, {name: 'nota', maxCount: 1}]), HistoricController.register);
 // routes.put("/historic/", HistoricController.update);
 routes.delete("/historic/", HistoricController.delete);
+
+
+// PRICE ------------------------------------------------------------------------
+routes.get("/price/:month", PriceController.getPrice);
+routes.post("/price/", PriceController.setPrice);
 
 
 export default routes;
