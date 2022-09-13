@@ -69,6 +69,8 @@ class HistoricController {
             const truck = await Truck.findOne({ licensePlate: truckLicensePlate });
             if (!truck) return res.status(400).send({ message: "Caminhão não encontrado." });
 
+            if (truck.odometer === currentOdometerValue) return res.status(400).send({ message: "Odometro do abastecimento igual ao atual do caminhão." });
+
             const uploadImagesService = new UploadImagesService();
 
             const odometerImage = await uploadImagesService.execute(files["odometer"][0]);
