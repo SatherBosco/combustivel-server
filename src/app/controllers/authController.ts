@@ -22,7 +22,8 @@ class AuthController {
 
             if (await User.findOne({ cpf })) return res.status(400).send({ message: "CPF já registrado." });
             if (truckLicensePlate && truckLicensePlate !== "") {
-                if (await Truck.findOne({ licensePlate: truckLicensePlate })) return res.status(400).send({ message: "Placa não existe." });
+                const placa = await Truck.findOne({ licensePlate: truckLicensePlate });
+                if (!placa) return res.status(400).send({ message: "Placa não existe." });
             }
             if (!firstName || firstName === "" || !lastName || lastName === "" || !password || password === "")
                 return res.status(400).send({ message: "Dados inválidos." });
@@ -31,6 +32,7 @@ class AuthController {
                 return res.status(400).send({ message: "Sem placa para o motorista." });
 
             var userObj = req.body;
+            console.log(userObj);
             await User.create(userObj);
 
             return res.send({ message: "Cadastro concluído com sucesso." });

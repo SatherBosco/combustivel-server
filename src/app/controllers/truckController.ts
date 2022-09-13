@@ -39,7 +39,12 @@ class TruckController {
 
             if (await Truck.findOne({ licensePlate: licensePlate })) return res.status(400).send({ message: "Placa já cadastrada." });
 
-            var truckObj = req.body;
+            var truckObj = {
+                "licensePlate": licensePlate,
+                "odometer": odometer,
+                "capacity": capacity,
+                "average": average
+            };
             await Truck.create(truckObj);
 
             return res.send({ message: "Cadastro do caminhão concluído com sucesso." });

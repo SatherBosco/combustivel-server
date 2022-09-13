@@ -1,6 +1,6 @@
 import Historic from "../models/Historic";
-import Truck from "../models/Truck";
 import UserInfos from "../models/UserInfos";
+import preco from "../shared/settings.json"
 
 class UserInfosComponents {
     public async updateUserInfos(cpf: string, truckAverage: number, referenceMonth: number) {
@@ -51,16 +51,14 @@ class UserInfosComponents {
         
         var km = 0;
         var litros = 0;
-        var preco = 0;
 
         for (let index = 0; index < historics.length; index++) {
-            var km = km + historics[index].km;
-            var litros = litros + historics[index].liters;
-            var preco = preco + historics[index].value;
+            km = km + historics[index].km;
+            litros = litros + historics[index].liters;
         }
         var media = km / litros;
         var lastMedia = (historics[historics.length - 1].km) / historics[historics.length - 1].liters;
-        var premio = ((km / truckAverage) - litros) * 0.6 * (preco / litros);
+        var premio = ((km / truckAverage) - litros) * 0.6 * 7;
 
         infoObj.kmTraveled = km;
         infoObj.average = media;
