@@ -51,10 +51,8 @@ class HistoricController {
     }
 
     public async register(req: Request, res: Response) {
-        const { truckLicensePlate, date, cpf, month, fuelStationName, currentOdometerValue, liters, value } = req.body;
-        console.log(req.body);
-        console.log(truckLicensePlate);
-        console.log(fuelStationName);
+        const { truckLicensePlate, date, cpf, month, fuelStationName, currentOdometerValue, liters, value, cnpj } = req.body;
+
         try {
             const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
@@ -90,6 +88,7 @@ class HistoricController {
                 date: new Date(date),
                 referenceMonth: month,
                 fuelStationName: fuelStationName,
+                cnpj: cnpj,
                 previousOdometer: previousOdometerValue,
                 currentOdometer: currentOdometerValue,
                 liters: liters,

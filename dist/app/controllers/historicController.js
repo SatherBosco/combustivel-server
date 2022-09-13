@@ -62,10 +62,7 @@ class HistoricController {
     }
     register(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { truckLicensePlate, date, cpf, month, fuelStationName, currentOdometerValue, liters, value } = req.body;
-            console.log(req.body);
-            console.log(truckLicensePlate);
-            console.log(fuelStationName);
+            const { truckLicensePlate, date, cpf, month, fuelStationName, currentOdometerValue, liters, value, cnpj } = req.body;
             try {
                 const files = req.files;
                 const deleteFiles = new deleteFilesComponent_1.default();
@@ -95,6 +92,7 @@ class HistoricController {
                     date: new Date(date),
                     referenceMonth: month,
                     fuelStationName: fuelStationName,
+                    cnpj: cnpj,
                     previousOdometer: previousOdometerValue,
                     currentOdometer: currentOdometerValue,
                     liters: liters,

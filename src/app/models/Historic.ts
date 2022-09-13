@@ -7,6 +7,7 @@ export interface HistoricInput {
     date: Date;
     referenceMonth: number;
     fuelStationName: string;
+    cnpj: string;
     previousOdometer: number;
     currentOdometer: number;
     liters: number;
@@ -43,6 +44,10 @@ const HistoricSchema = new mongoose.Schema({
         required: true,
     },
     fuelStationName: {
+        type: String,
+        required: true,
+    },
+    cnpj: {
         type: String,
         required: true,
     },
