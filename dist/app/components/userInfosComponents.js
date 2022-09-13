@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Historic_1 = __importDefault(require("../models/Historic"));
+const Price_1 = __importDefault(require("../models/Price"));
 const UserInfos_1 = __importDefault(require("../models/UserInfos"));
 class UserInfosComponents {
     updateUserInfos(cpf, truckAverage, referenceMonth) {
@@ -58,15 +59,16 @@ class UserInfosComponents {
                 return infoObj;
             var km = 0;
             var litros = 0;
-            var preco = 0;
             for (let index = 0; index < historics.length; index++) {
-                var km = km + historics[index].km;
-                var litros = litros + historics[index].liters;
-                var preco = preco + historics[index].value;
+                km = km + historics[index].km;
+                litros = litros + historics[index].liters;
             }
+            const price = yield Price_1.default.findOne({ monthDate: referenceMonth });
+            if (!price)
+                return infoObj;
             var media = km / litros;
             var lastMedia = (historics[historics.length - 1].km) / historics[historics.length - 1].liters;
-            var premio = ((km / truckAverage) - litros) * 0.6 * (preco / litros);
+            var premio = ((km / truckAverage) - litros) * 0.6 * price.price;
             infoObj.kmTraveled = km;
             infoObj.average = media;
             infoObj.lastAverage = lastMedia;

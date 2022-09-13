@@ -51,7 +51,12 @@ class TruckController {
                     return res.status(400).send({ message: "Dados inválidos." });
                 if (yield Truck_1.default.findOne({ licensePlate: licensePlate }))
                     return res.status(400).send({ message: "Placa já cadastrada." });
-                var truckObj = req.body;
+                var truckObj = {
+                    "licensePlate": licensePlate,
+                    "odometer": odometer,
+                    "capacity": capacity,
+                    "average": average
+                };
                 yield Truck_1.default.create(truckObj);
                 return res.send({ message: "Cadastro do caminhão concluído com sucesso." });
             }

@@ -12,6 +12,7 @@ const truckController_1 = __importDefault(require("./controllers/truckController
 const fuelStationController_1 = __importDefault(require("./controllers/fuelStationController"));
 const userInfoController_1 = __importDefault(require("./controllers/userInfoController"));
 const historicController_1 = __importDefault(require("./controllers/historicController"));
+const priceController_1 = __importDefault(require("./controllers/priceController"));
 const upload_1 = __importDefault(require("./middlewares/upload"));
 const routes = (0, express_1.Router)();
 const upload = (0, multer_1.default)(upload_1.default);
@@ -47,4 +48,7 @@ routes.get("/historic/by-user/:initialDate&:finalDate&:cpf", historicController_
 routes.post("/historic/", upload.fields([{ name: 'odometer', maxCount: 1 }, { name: 'nota', maxCount: 1 }]), historicController_1.default.register);
 // routes.put("/historic/", HistoricController.update);
 routes.delete("/historic/", historicController_1.default.delete);
+// PRICE ------------------------------------------------------------------------
+routes.get("/price/:month", priceController_1.default.getPrice);
+routes.post("/price/", priceController_1.default.setPrice);
 exports.default = routes;
