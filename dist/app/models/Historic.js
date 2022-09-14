@@ -57,6 +57,10 @@ const HistoricSchema = new mongoose_1.default.Schema({
         type: Number,
         required: true,
     },
+    standardAverage: {
+        type: Number,
+        required: true,
+    },
     odometerImage: {
         type: String,
         required: true,

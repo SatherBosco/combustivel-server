@@ -14,6 +14,7 @@ export interface HistoricInput {
     value: number;
     km: number;
     average: number;
+    standardAverage: number;
     odometerImage: string;
     invoiceImage: string;
 }
@@ -72,6 +73,10 @@ const HistoricSchema = new mongoose.Schema({
         required: true,
     },
     average: {
+        type: Number,
+        required: true,
+    },
+    standardAverage: {
         type: Number,
         required: true,
     },

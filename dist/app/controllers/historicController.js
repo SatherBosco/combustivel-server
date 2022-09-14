@@ -87,6 +87,7 @@ class HistoricController {
                 const previousOdometerValue = truck.odometer;
                 const kmValue = currentOdometerValue - previousOdometerValue;
                 const averageValue = kmValue / liters;
+                const standardAverage = truck.average;
                 var historicObj = {
                     fullName: user.fullName,
                     cpf: cpf,
@@ -101,13 +102,14 @@ class HistoricController {
                     value: value,
                     km: kmValue,
                     average: averageValue,
+                    standardAverage: standardAverage,
                     odometerImage: odometerImage.message,
                     invoiceImage: notaImage.message,
                 };
                 const historic = yield Historic_1.default.create(historicObj);
                 truck.odometer = currentOdometerValue;
                 yield truck.save();
-                const userInfos = yield userInfosComponents_1.default.updateUserInfos(cpf, truck.average, month);
+                const userInfos = yield userInfosComponents_1.default.updateUserInfos(cpf, month);
                 return res.send({ message: "Abastecimento cadastrado com sucesso.", userInfos, historic });
             }
             catch (_a) {
@@ -176,7 +178,7 @@ class HistoricController {
                     yield historicUp.save();
                 }
                 yield Historic_1.default.findOneAndDelete({ _id: historicId });
-                const userInfos = yield userInfosComponents_1.default.updateUserInfos(req.userCPF, truck.average, historic.referenceMonth);
+                const userInfos = yield userInfosComponents_1.default.updateUserInfos(req.userCPF, historic.referenceMonth);
                 return res.send({ message: "Lançamento excluido do banco de dados.", userInfos });
             }
             catch (_a) {

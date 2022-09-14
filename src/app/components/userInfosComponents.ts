@@ -4,10 +4,10 @@ import UserInfos from "../models/UserInfos";
 import preco from "../shared/settings.json"
 
 class UserInfosComponents {
-    public async updateUserInfos(cpf: string, truckAverage: number, referenceMonth: number) {
+    public async updateUserInfos(cpf: string, referenceMonth: number) {
         var userInfos = await this.verifyIfUserExist(cpf, referenceMonth);
 
-        const obj = await this.updateInfos(cpf, truckAverage, referenceMonth);
+        const obj = await this.updateInfos(cpf, referenceMonth);
 
         userInfos.kmTraveled = obj.kmTraveled;
         userInfos.average = obj.average;
@@ -38,7 +38,7 @@ class UserInfosComponents {
         return userInfos;
     }
 
-    private async updateInfos(cpf: string, truckAverage: number, referenceMonth: number) {
+    private async updateInfos(cpf: string, referenceMonth: number) {
         var historics = await Historic.find({ cpf: cpf, referenceMonth: referenceMonth }).sort({ date: 1 });
 
         var infoObj = {
@@ -52,19 +52,19 @@ class UserInfosComponents {
         
         var km = 0;
         var litros = 0;
+        var premio = 0;
+
+        const price = await Price.findOne({ monthDate: referenceMonth });
+        if(!price) return infoObj;
 
         for (let index = 0; index < historics.length; index++) {
             km = km + historics[index].km;
             litros = litros + historics[index].liters;
+            premio = premio + ((historics[index].km / historics[index].standardAverage) - historics[index].liters) * 0.6 * price.price;
         }
-
-        const price = await Price.findOne({ monthDate: referenceMonth });
-
-        if(!price) return infoObj;
 
         var media = km / litros;
         var lastMedia = (historics[historics.length - 1].km) / historics[historics.length - 1].liters;
-        var premio = ((km / truckAverage) - litros) * 0.6 * price.price;
 
         infoObj.kmTraveled = km;
         infoObj.average = media;
