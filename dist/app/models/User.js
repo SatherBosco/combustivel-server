@@ -22,12 +22,10 @@ const UserSchema = new mongoose_1.default.Schema({
     },
     firstName: {
         type: String,
-        unique: true,
         required: true,
     },
     lastName: {
         type: String,
-        unique: true,
         required: true,
     },
     password: {
