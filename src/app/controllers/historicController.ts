@@ -6,15 +6,17 @@ import UserInfosComponents from "../components/userInfosComponents";
 import Historic from "../models/Historic";
 import Truck from "../models/Truck";
 import User from "../models/User";
-import truckController from "./truckController";
 
 class HistoricController {
     public async getAll(req: Request, res: Response) {
-        const initialDate = new Date(req.params.initialDate);
-        const finalDate = new Date(req.params.finalDate);
+        var initialDate = new Date(req.params.initialDate);
+        var finalDate = new Date(req.params.finalDate);
+
+        initialDate.setHours(0);
+        finalDate.setHours(0);
 
         try {
-            var historics = await Historic.find({ date: { $gte: initialDate, $lte: finalDate } });
+            var historics = await Historic.find({ date: { $gte: initialDate, $lt: finalDate } });
 
             return res.send({ message: "Lista de abastecimentos recuperada do banco de dados.", historics });
         } catch {

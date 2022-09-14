@@ -21,10 +21,12 @@ const User_1 = __importDefault(require("../models/User"));
 class HistoricController {
     getAll(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const initialDate = new Date(req.params.initialDate);
-            const finalDate = new Date(req.params.finalDate);
+            var initialDate = new Date(req.params.initialDate);
+            var finalDate = new Date(req.params.finalDate);
+            initialDate.setHours(0);
+            finalDate.setHours(0);
             try {
-                var historics = yield Historic_1.default.find({ date: { $gte: initialDate, $lte: finalDate } });
+                var historics = yield Historic_1.default.find({ date: { $gte: initialDate, $lt: finalDate } });
                 return res.send({ message: "Lista de abastecimentos recuperada do banco de dados.", historics });
             }
             catch (_a) {
