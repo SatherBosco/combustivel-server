@@ -13,7 +13,7 @@ class HistoricController {
         var finalDate = new Date(req.params.finalDate);
 
         initialDate.setHours(0);
-        finalDate.setHours(0);
+        finalDate.setHours(21);
 
         try {
             var historics = await Historic.find({ date: { $gte: initialDate, $lt: finalDate } });
