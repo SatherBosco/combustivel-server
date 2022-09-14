@@ -24,7 +24,7 @@ class HistoricController {
             var initialDate = new Date(req.params.initialDate);
             var finalDate = new Date(req.params.finalDate);
             initialDate.setHours(0);
-            finalDate.setHours(0);
+            finalDate.setHours(21);
             try {
                 var historics = yield Historic_1.default.find({ date: { $gte: initialDate, $lt: finalDate } });
                 return res.send({ message: "Lista de abastecimentos recuperada do banco de dados.", historics });
