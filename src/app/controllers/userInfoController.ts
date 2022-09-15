@@ -10,7 +10,7 @@ class UserInfosController {
         try {
             const user = await User.findOne({ cpf: cpf });
             if (!user) return res.status(400).send({ message: "Usuário não encontrado." });
-            
+
             const thisMonth = new Date().getMonth() + 1;
 
             const userInfos = await UserInfos.findOne({ cpf: cpf, referenceMonth: thisMonth });

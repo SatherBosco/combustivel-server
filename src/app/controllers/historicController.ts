@@ -12,9 +12,6 @@ class HistoricController {
         var initialDate = new Date(req.params.initialDate);
         var finalDate = new Date(req.params.finalDate);
 
-        initialDate.setHours(0);
-        finalDate.setHours(21);
-
         try {
             var historics = await Historic.find({ date: { $gte: initialDate, $lt: finalDate } });
 
@@ -63,6 +60,11 @@ class HistoricController {
             if (!files || files === undefined || !files["odometer"] || !files["nota"]) {
                 deleteFiles.delete();
                 return res.status(400).send({ message: "Sem arquivo." });
+            }
+
+            if (!req.role || req.role !== 4) {
+                deleteFiles.delete();
+                return res.status(400).send({ message: "Sem permissão." });
             }
 
             const user = await User.findOne({ cpf: cpf });

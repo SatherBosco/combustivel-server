@@ -32,7 +32,6 @@ class AuthController {
                 return res.status(400).send({ message: "Sem placa para o motorista." });
 
             var userObj = req.body;
-            console.log(userObj);
             await User.create(userObj);
 
             return res.send({ message: "Cadastro concluído com sucesso." });

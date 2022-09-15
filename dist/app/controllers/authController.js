@@ -41,7 +41,6 @@ class AuthController {
                 if (role === 4 && (!truckLicensePlate || truckLicensePlate === ""))
                     return res.status(400).send({ message: "Sem placa para o motorista." });
                 var userObj = req.body;
-                console.log(userObj);
                 yield User_1.default.create(userObj);
                 return res.send({ message: "Cadastro concluído com sucesso." });
             }

@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Historic_1 = __importDefault(require("../models/Historic"));
 const Price_1 = __importDefault(require("../models/Price"));
+const User_1 = __importDefault(require("../models/User"));
 const UserInfos_1 = __importDefault(require("../models/UserInfos"));
 class UserInfosComponents {
     updateUserInfos(cpf, referenceMonth) {
@@ -38,8 +39,10 @@ class UserInfosComponents {
     }
     createUserInfos(cpf, referenceMonth) {
         return __awaiter(this, void 0, void 0, function* () {
+            const user = yield User_1.default.findOne({ cpf: cpf });
             var accountObj = {
                 cpf: cpf,
+                fullname: user === null || user === void 0 ? void 0 : user.fullName,
                 referenceMonth: referenceMonth,
             };
             var userInfos = yield UserInfos_1.default.create(accountObj);

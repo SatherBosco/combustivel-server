@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 export interface UserInfoInput {
     cpf: string;
+    fullname: string;
     kmTraveled: number;
     average: number;
     lastAverage: number;
@@ -15,6 +16,10 @@ export interface UserInfoDocument extends UserInfoInput, mongoose.Document {
 
 const UserInfoSchema = new mongoose.Schema({
     cpf: {
+        type: String,
+        required: true,
+    },
+    fullname: {
         type: String,
         required: true,
     },

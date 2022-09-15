@@ -23,8 +23,6 @@ class HistoricController {
         return __awaiter(this, void 0, void 0, function* () {
             var initialDate = new Date(req.params.initialDate);
             var finalDate = new Date(req.params.finalDate);
-            initialDate.setHours(0);
-            finalDate.setHours(21);
             try {
                 var historics = yield Historic_1.default.find({ date: { $gte: initialDate, $lt: finalDate } });
                 return res.send({ message: "Lista de abastecimentos recuperada do banco de dados.", historics });
@@ -71,6 +69,10 @@ class HistoricController {
                 if (!files || files === undefined || !files["odometer"] || !files["nota"]) {
                     deleteFiles.delete();
                     return res.status(400).send({ message: "Sem arquivo." });
+                }
+                if (!req.role || req.role !== 4) {
+                    deleteFiles.delete();
+                    return res.status(400).send({ message: "Sem permissão." });
                 }
                 const user = yield User_1.default.findOne({ cpf: cpf });
                 if (!user)

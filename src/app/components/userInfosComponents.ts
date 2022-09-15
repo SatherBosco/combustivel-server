@@ -1,5 +1,6 @@
 import Historic from "../models/Historic";
 import Price from "../models/Price";
+import User from "../models/User";
 import UserInfos from "../models/UserInfos";
 import preco from "../shared/settings.json"
 
@@ -28,8 +29,10 @@ class UserInfosComponents {
     }
 
     private async createUserInfos(cpf: string, referenceMonth: number) {
+        const user = await User.findOne({cpf: cpf});
         var accountObj = {
             cpf: cpf,
+            fullname: user?.fullName,
             referenceMonth: referenceMonth,
         };
 
