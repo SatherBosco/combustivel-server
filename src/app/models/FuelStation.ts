@@ -3,22 +3,25 @@ import mongoose from "mongoose";
 export interface FuelStationInput {
     name: string;
     cnpj: string;
-  }
-  
-  export interface FuelStationDocument extends FuelStationInput, mongoose.Document {
+    unit: string;
+}
+
+export interface FuelStationDocument extends FuelStationInput, mongoose.Document {
     createdAt: Date;
-  }
+}
 
 const FuelStationSchema = new mongoose.Schema({
     name: {
         type: String,
-        unique: true,
         required: true,
     },
     cnpj: {
-      type: String,
-      unique: true,
-      required: true,
+        type: String,
+        required: true,
+    },
+    unit: {
+        type: String,
+        required: true,
     },
     createdAt: {
         type: Date,

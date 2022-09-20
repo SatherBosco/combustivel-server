@@ -2,20 +2,25 @@ import mongoose from "mongoose";
 
 export interface PriceInput {
     price: number;
-    monthDate: number;
-  }
-  
-  export interface PriceDocument extends PriceInput, mongoose.Document {
+    referenceMonth: number;
+    unit: string;
+}
+
+export interface PriceDocument extends PriceInput, mongoose.Document {
     createdAt: Date;
-  }
+}
 
 const PriceSchema = new mongoose.Schema({
     price: {
         type: Number,
         required: true,
     },
-    monthDate: {
-        type: Number,
+    referenceMonth: {
+        type: String,
+        required: true,
+    },
+    unit: {
+        type: String,
         required: true,
     },
     createdAt: {

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import Truck from "../models/Truck";
+import Truck, { TruckInput } from "../models/Truck";
 
 class TruckController {
     public async getAll(req: Request, res: Response) {
@@ -9,58 +9,47 @@ class TruckController {
 
             return res.send({ message: "Lista de caminhões recuperada do banco de dados.", trucks });
         } catch {
-            return res.status(400).send({ message: "Falha na solicitação da lista de caminhões." });
-        }
-    }
-
-    public async getOne(req: Request, res: Response) {
-        try {
-            if (!req.params.licensePlate || req.params.licensePlate === "") return res.status(400).send({ message: "Dados inválidos." });
-
-            var truck = await Truck.findOne({ licensePlate: req.params.licensePlate });
-            
-            if (!truck) return res.status(400).send({ message: "Placa não encontrada." });
-
-            return res.send({ message: "Caminhão recuperado do banco de dados.", truck });
-        } catch {
-            return res.status(400).send({ message: "Falha na solicitação do caminhão ao banco de dados." });
+            return res.status(400).send({ message: "Erro: Falha na solicitação da lista de caminhões." });
         }
     }
 
     public async register(req: Request, res: Response) {
-        const { licensePlate, odometer, capacity, average } = req.body;
+        var { licensePlate, odometer, capacity, average } = req.body;
+
         try {
-            if (!req.role || req.role > 3) {
-                return res.status(401).send({ message: "Não autorizado." });
-            }
+            if (!req.role) return res.status(401).send({ message: "Erro: Não autorizado." });
 
-            if (!licensePlate || licensePlate === "" || !odometer || odometer === "" || !capacity || capacity === "" || !average || average === "")
-                return res.status(400).send({ message: "Dados inválidos." });
+            licensePlate = licensePlate.replace(" ", "");
+            odometer = odometer.replace(" ", "");
+            capacity = capacity.replace(" ", "");
+            average = average.replace(" ", "");
 
-            if (await Truck.findOne({ licensePlate: licensePlate })) return res.status(400).send({ message: "Placa já cadastrada." });
+            if (!licensePlate || licensePlate === "" || !odometer || odometer === "" || !capacity || capacity === "" || !average || average === "") return res.status(400).send({ message: "Erro: Dados inválidos." });
 
-            var truckObj = {
-                "licensePlate": licensePlate,
-                "odometer": odometer,
-                "capacity": capacity,
-                "average": average
+            if (await Truck.findOne({ licensePlate: licensePlate })) return res.status(400).send({ message: "Erro: Placa já cadastrada." });
+
+            var truckObj: TruckInput = {
+                licensePlate: licensePlate,
+                odometer: odometer,
+                capacity: capacity,
+                average: average,
+                unit: "R3T",
             };
             await Truck.create(truckObj);
 
             return res.send({ message: "Cadastro do caminhão concluído com sucesso." });
         } catch {
-            return res.status(400).send({ message: "Falha no registro do caminhão." });
+            return res.status(400).send({ message: "Erro: Falha no registro do caminhão." });
         }
     }
 
     public async update(req: Request, res: Response) {
         const { licensePlate, odometer, capacity, average } = req.body;
-        try {
-            if (!req.role || req.role > 3) 
-                return res.status(401).send({ message: "Não autorizado." });
 
-            if (!licensePlate || licensePlate === "")
-                return res.status(400).send({ message: "Dados inválidos." });
+        try {
+            if (!req.role || req.role > 3) return res.status(401).send({ message: "Não autorizado." });
+
+            if (!licensePlate || licensePlate === "") return res.status(400).send({ message: "Dados inválidos." });
 
             var truck = await Truck.findOne({ licensePlate: licensePlate });
             if (!truck) return res.status(400).send({ message: "Placa não encontrada." });
@@ -81,11 +70,9 @@ class TruckController {
     public async delete(req: Request, res: Response) {
         const { licensePlate } = req.body;
         try {
-            if (!req.role || req.role > 3) 
-                return res.status(401).send({ message: "Não autorizado." });
-            
-            if (!licensePlate || licensePlate === "")
-                return res.status(400).send({ message: "Dados inválidos." });
+            if (!req.role || req.role > 3) return res.status(401).send({ message: "Não autorizado." });
+
+            if (!licensePlate || licensePlate === "") return res.status(400).send({ message: "Dados inválidos." });
 
             await Truck.findOneAndDelete({ licensePlate: licensePlate });
 

@@ -6,14 +6,14 @@ import Truck from "../models/Truck";
 
 import User from "../models/User";
 
-function generateToken(params = {}) {
-    return sign(params, authConfig.secret, {
-        // expiresIn: 86400,
-        expiresIn: 31536000,
-    });
-}
-
 class AuthController {
+    generateToken(params = {}) {
+        return sign(params, authConfig.secret, {
+            // expiresIn: 86400,
+            expiresIn: 31536000,
+        });
+    }
+
     public async register(req: Request, res: Response) {
         const { cpf, firstName, lastName, password, role, truckLicensePlate } = req.body;
 
@@ -55,7 +55,7 @@ class AuthController {
             return res.send({
                 message: "OK",
                 user,
-                token: generateToken({ cpf: user?.cpf, role: user?.role }),
+                token: this.generateToken({ cpf: user?.cpf, role: user?.role }),
             });
         } catch {
             return res.status(400).send({ message: "Falha no login." });
@@ -72,7 +72,8 @@ class AuthController {
 
             if (!user) return res.status(400).send({ message: "CPF não encontrado." });
 
-            if (req.role > user.role || (req.role == user.role && req.userCPF !== user.cpf)) return res.status(400).send({ message: "Não autorizado." });
+            if (req.role > user.role || (req.role == user.role && req.userCPF !== user.cpf))
+                return res.status(400).send({ message: "Não autorizado." });
 
             user.password = newPassword;
             await user.save();

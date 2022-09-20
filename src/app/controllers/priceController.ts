@@ -1,15 +1,20 @@
 import { Request, Response } from "express";
 import Price from "../models/Price";
 
-
 class PriceController {
     public async getPrice(req: Request, res: Response) {
         try {
-            var price = await Price.findOne({ monthDate: req.params.month });
+            var priceByDb = await Price.findOne({ referenceMonth: req.params.month });
+
+            const price = {
+                price: priceByDb?.price,
+                monthDate: priceByDb?.referenceMonth,
+                referenceMonth: priceByDb?.referenceMonth,
+            };
 
             return res.send({ message: "Preço retornado com sucesso.", price });
         } catch {
-            return res.status(400).send({ message: "Falha na solicitação do preço." });
+            return res.status(400).send({ message: "Erro: Falha na solicitação do preço de referência do mês." });
         }
     }
 
@@ -22,7 +27,7 @@ class PriceController {
 
             if (await Price.findOne({ monthDate: monthDate })) return res.status(400).send({ message: "Preço já cadastrado para este mês." });
 
-            var priceObj = { "price": price, "monthDate": monthDate };
+            var priceObj = { price: price, monthDate: monthDate };
             await Price.create(priceObj);
 
             return res.send({ message: "Preço cadastrado com sucesso." });
@@ -30,6 +35,8 @@ class PriceController {
             return res.status(400).send({ message: "Falha no registro do preço." });
         }
     }
+
+    public async updatePrice(req: Request, res: Response) {}
 }
 
 export default new PriceController();
