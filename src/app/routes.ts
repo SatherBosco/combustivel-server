@@ -3,7 +3,7 @@ import authVerify from "./middlewares/auth";
 import multer from "multer";
 
 import HealthController from "./controllers/healthController";
-import AuthController from "./controllers/authController";
+import { AuthController } from "./controllers/authController";
 import TruckController from "./controllers/truckController";
 import FuelStationController from "./controllers/fuelStationController";
 import UserInfoController from "./controllers/userInfoController";
@@ -12,56 +12,66 @@ import PriceController from "./controllers/priceController";
 
 import uploadConfig from "./middlewares/upload";
 
-const routes = Router();
+export class Routes {
+    routes: Router;
+    upload: multer.Multer;
 
-const upload = multer(uploadConfig);
+    constructor() {
+        this.routes = Router();
+        this.upload = multer(uploadConfig);
+    }
 
-// HEALTH -----------------------------------------------------------------------
-routes.get("/health/", HealthController.health);
-routes.get("/health/app-version", HealthController.appVersion);
-routes.get("/health/dashboard-version", HealthController.dashboardVersion);
-routes.get("/health/server-version", HealthController.serverVersion);
+    public initRoutes(): Router {
+        // HEALTH -----------------------------------------------------------------------
+        this.routes.get("/health/", HealthController.health);
+        this.routes.get("/health/app-version", HealthController.appVersion);
+        this.routes.get("/health/dashboard-version", HealthController.dashboardVersion);
+        this.routes.get("/health/server-version", HealthController.serverVersion);
 
-// AUTH -------------------------------------------------------------------------
-routes.post("/auth/authenticate", AuthController.authenticate);
-routes.use(authVerify); // MIDDLEWARE JWT ---------------------------------------
-routes.post("/auth/register", AuthController.register);
-routes.post("/auth/change-password", AuthController.changePassword);
+        // AUTH -------------------------------------------------------------------------
+        const authController = new AuthController();
+        this.routes.post("/auth/authenticate", authController.authenticate);
+        this.routes.use(authVerify); // MIDDLEWARE JWT ---------------------------------------
+        this.routes.post("/auth/register", authController.register);
+        this.routes.post("/auth/change-password", authController.changePassword);
 
-// TRUCK ------------------------------------------------------------------------
-routes.get("/truck/", TruckController.getAll);
-routes.post("/truck/", TruckController.register);
-routes.put("/truck/", TruckController.update);
-routes.delete("/truck/", TruckController.delete);
+        // TRUCK ------------------------------------------------------------------------
+        this.routes.get("/truck/", TruckController.getAll);
+        this.routes.post("/truck/", TruckController.register);
+        this.routes.put("/truck/", TruckController.update);
+        this.routes.delete("/truck/", TruckController.delete);
 
-// FUEL STATION -----------------------------------------------------------------
-routes.get("/fuel-station/", FuelStationController.getAll);
-routes.post("/fuel-station/", FuelStationController.register);
-routes.put("/fuel-station/", FuelStationController.update);
-routes.delete("/fuel-station/", FuelStationController.delete);
+        // FUEL STATION -----------------------------------------------------------------
+        this.routes.get("/fuel-station/", FuelStationController.getAll);
+        this.routes.post("/fuel-station/", FuelStationController.register);
+        this.routes.put("/fuel-station/", FuelStationController.update);
+        this.routes.delete("/fuel-station/", FuelStationController.delete);
 
-// USER INFOS -------------------------------------------------------------------
-routes.get("/user-infos/one/:cpf", UserInfoController.getOneDriver);
-routes.get("/user-infos/one-specific-month/:cpf&:dateMonth", UserInfoController.getOneDriverSpecificMonth);
-routes.get("/user-infos/all/:dateMonth", UserInfoController.getAllDrivers);
+        // USER INFOS -------------------------------------------------------------------
+        this.routes.get("/user-infos/one/:cpf", UserInfoController.getOneDriver);
+        this.routes.get("/user-infos/one-specific-month/:cpf&:dateMonth", UserInfoController.getOneDriverSpecificMonth);
+        this.routes.get("/user-infos/all/:dateMonth", UserInfoController.getAllDrivers);
 
-// HISTORIC ---------------------------------------------------------------------
-routes.get("/historic/:initialDate&:finalDate", HistoricController.getAll);
-routes.get("/historic/by-truck/:initialDate&:finalDate&:truckLicensePlate", HistoricController.getAllByTruck);
-routes.get("/historic/by-user/:initialDate&:finalDate&:cpf", HistoricController.getAllByUser);
-routes.post(
-    "/historic/",
-    upload.fields([
-        { name: "odometer", maxCount: 1 },
-        { name: "nota", maxCount: 1 },
-    ]),
-    HistoricController.register
-);
-// routes.put("/historic/", HistoricController.update);
-routes.delete("/historic/", HistoricController.delete);
+        // HISTORIC ---------------------------------------------------------------------
+        this.routes.get("/historic/:initialDate&:finalDate", HistoricController.getAll);
+        this.routes.get("/historic/by-truck/:initialDate&:finalDate&:truckLicensePlate", HistoricController.getAllByTruck);
+        this.routes.get("/historic/by-user/:initialDate&:finalDate&:cpf", HistoricController.getAllByUser);
+        this.routes.post(
+            "/historic/",
+            this.upload.fields([
+                { name: "odometer", maxCount: 1 },
+                { name: "nota", maxCount: 1 },
+            ]),
+            HistoricController.register
+        );
+        // routes.put("/historic/", HistoricController.update);
+        this.routes.delete("/historic/", HistoricController.delete);
 
-// PRICE ------------------------------------------------------------------------
-routes.get("/price/:month", PriceController.getPrice);
-routes.post("/price/", PriceController.setPrice);
+        // PRICE ------------------------------------------------------------------------
+        this.routes.get("/price/:month", PriceController.getPrice);
+        this.routes.post("/price/", PriceController.setPrice);
+        this.routes.post("/att/", PriceController.att);
 
-export default routes;
+        return this.routes;
+    }
+}

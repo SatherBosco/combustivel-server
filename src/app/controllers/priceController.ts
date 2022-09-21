@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
+import userInfosComponents from "../components/userInfosComponents";
 import Price from "../models/Price";
+import UserInfos from "../models/UserInfos";
 
 class PriceController {
     public async getPrice(req: Request, res: Response) {
@@ -37,6 +39,16 @@ class PriceController {
     }
 
     public async updatePrice(req: Request, res: Response) {}
+
+    public async att(req: Request, res: Response) {
+        const users = await UserInfos.find({});
+
+        for (let index = 0; index < users.length; index++) {
+            const userInfos = await userInfosComponents.updateUserInfos(users[index].cpf, 9);
+        }
+
+        return res.send({ message: "Att com sucesso." });
+    }
 }
 
 export default new PriceController();

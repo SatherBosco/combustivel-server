@@ -58,12 +58,15 @@ class HistoricController {
             const deleteFiles = new DeleteFiles();
 
             if (!files || files === undefined || !files["odometer"] || !files["nota"]) {
-                deleteFiles.delete();
+                if (files["odometer"]) await deleteFiles.delete(files["odometer"][0]["filename"]);
+                if (files["nota"]) await deleteFiles.delete(files["nota"][0]["filename"]);
                 return res.status(400).send({ message: "Sem arquivo." });
             }
 
             if (!req.role || req.role !== 4) {
-                deleteFiles.delete();
+                await deleteFiles.delete(files["odometer"][0]["filename"]);
+                await deleteFiles.delete(files["nota"][0]["filename"]);
+
                 return res.status(400).send({ message: "Sem permissão." });
             }
 
@@ -79,7 +82,8 @@ class HistoricController {
 
             const odometerImage = await uploadImagesService.execute(files["odometer"][0]);
             const notaImage = await uploadImagesService.execute(files["nota"][0]);
-            deleteFiles.delete();
+            await deleteFiles.delete(files["odometer"][0]["filename"]);
+            await deleteFiles.delete(files["nota"][0]["filename"]);
 
             if (!odometerImage.sucess || !notaImage.sucess) return res.status(400).send({ message: !odometerImage.sucess ? odometerImage.message : notaImage.message });
 
@@ -107,13 +111,13 @@ class HistoricController {
                 invoiceImage: notaImage.message,
             };
             const historic = await Historic.create(historicObj);
-            
+
             truck.odometer = currentOdometerValue;
             await truck.save();
 
             const userInfos = await UserInfosComponents.updateUserInfos(cpf, month);
 
-            return res.send({ message: "Abastecimento cadastrado com sucesso.", userInfos, historic });
+            return res.send({ message: "Abastecimento cadastrado com sucesso." }); //, userInfos, historic });
         } catch {
             return res.status(400).send({ message: "Falha no registro do abstecimento." });
         }
@@ -185,7 +189,7 @@ class HistoricController {
                 historicUp.average = historicUp.km / historicUp.liters;
                 await historicUp.save();
             }
-            
+
             await Historic.findOneAndDelete({ _id: historicId });
 
             const userInfos = await UserInfosComponents.updateUserInfos(req.userCPF, historic.referenceMonth);

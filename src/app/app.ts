@@ -1,17 +1,20 @@
 import express from "express";
 import cors from "cors";
 
-import routes from "./routes";
+import { Routes } from "./routes";
 import Database from "../database";
 
 export class App {
     public server: express.Application;
+    private routes: Routes;
 
     constructor() {
         this.server = express();
         this.middlewares();
         Database();
-        this.routes();
+        this.routes = new Routes();
+
+        this.startRoutes();
     }
 
     private middlewares() {
@@ -20,10 +23,7 @@ export class App {
         this.server.use((req, res, next) => {
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Credentials", "true");
-            res.header(
-                "Access-Control-Allow-Headers",
-                "Origin, X-Requested-With, Content-Type, Accept, x-client-key, x-client-token, x-client-secret, Authorization"
-            );
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-client-key, x-client-token, x-client-secret, Authorization");
             res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
             next();
         });
@@ -32,7 +32,7 @@ export class App {
         this.server.use(express.urlencoded({ extended: false }));
     }
 
-    private routes() {
-        this.server.use(routes);
+    private startRoutes() {
+        this.server.use(this.routes.initRoutes());
     }
 }

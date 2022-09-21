@@ -2,18 +2,18 @@ import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
 
 import authConfig from "../../configs/auth.json";
-import Truck from "../models/Truck";
 
+import Truck from "../models/Truck";
 import User from "../models/User";
 
-class AuthController {
-    generateToken(params = {}) {
-        return sign(params, authConfig.secret, {
-            // expiresIn: 86400,
-            expiresIn: 31536000,
-        });
-    }
+function generateToken(params = {}): string {
+    return sign(params, authConfig.secret, {
+        // expiresIn: 86400,
+        expiresIn: 31536000,
+    });
+}
 
+export class AuthController {
     public async register(req: Request, res: Response) {
         const { cpf, firstName, lastName, password, role, truckLicensePlate } = req.body;
 
@@ -25,11 +25,9 @@ class AuthController {
                 const placa = await Truck.findOne({ licensePlate: truckLicensePlate });
                 if (!placa) return res.status(400).send({ message: "Placa não existe." });
             }
-            if (!firstName || firstName === "" || !lastName || lastName === "" || !password || password === "")
-                return res.status(400).send({ message: "Dados inválidos." });
+            if (!firstName || firstName === "" || !lastName || lastName === "" || !password || password === "") return res.status(400).send({ message: "Dados inválidos." });
 
-            if (role === 4 && (!truckLicensePlate || truckLicensePlate === ""))
-                return res.status(400).send({ message: "Sem placa para o motorista." });
+            if (role === 4 && (!truckLicensePlate || truckLicensePlate === "")) return res.status(400).send({ message: "Sem placa para o motorista." });
 
             var userObj = req.body;
             await User.create(userObj);
@@ -52,11 +50,9 @@ class AuthController {
 
             user?.set("password", undefined);
 
-            return res.send({
-                message: "OK",
-                user,
-                token: this.generateToken({ cpf: user?.cpf, role: user?.role }),
-            });
+            const token = generateToken({ cpf: user?.cpf, role: user?.role });
+
+            return res.send({ message: "OK", user, token: token });
         } catch {
             return res.status(400).send({ message: "Falha no login." });
         }
@@ -72,8 +68,7 @@ class AuthController {
 
             if (!user) return res.status(400).send({ message: "CPF não encontrado." });
 
-            if (req.role > user.role || (req.role == user.role && req.userCPF !== user.cpf))
-                return res.status(400).send({ message: "Não autorizado." });
+            if (req.role > user.role || (req.role == user.role && req.userCPF !== user.cpf)) return res.status(400).send({ message: "Não autorizado." });
 
             user.password = newPassword;
             await user.save();
@@ -83,5 +78,3 @@ class AuthController {
         }
     }
 }
-
-export default new AuthController();
