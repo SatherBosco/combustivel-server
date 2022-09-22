@@ -61,7 +61,7 @@ typings/
 .next
 
 # typescript compiled code
-# dist/
+dist/
 
 # configs
 src/configs/
