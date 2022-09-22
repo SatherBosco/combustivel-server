@@ -3,34 +3,23 @@ import path from "path";
 import upload from "../middlewares/upload";
 
 class DeleteFiles {
-    async delete(fileName: string) {
+    async delete() {
         try {
             const directory = upload.directory;
 
-            fs.unlink(path.join(directory, fileName), (err) => {
+            fs.readdir(directory, (err, files) => {
                 if (err) throw err;
+
+                for (const file of files) {
+                    fs.unlink(path.join(directory, file), (err) => {
+                        if (err) throw err;
+                    });
+                }
             });
         } catch (error) {
-            console.log(error);
+            console.log(error)
         }
     }
-    // async delete() {
-    //     try {
-    //         const directory = upload.directory;
-
-    //         fs.readdir(directory, (err, files) => {
-    //             if (err) throw err;
-
-    //             for (const file of files) {
-    //                 fs.unlink(path.join(directory, file), (err) => {
-    //                     if (err) throw err;
-    //                 });
-    //             }
-    //         });
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // }
 }
 
 export default DeleteFiles;

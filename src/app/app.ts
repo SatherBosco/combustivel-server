@@ -1,20 +1,17 @@
 import express from "express";
 import cors from "cors";
 
-import { Routes } from "./routes";
+import routes from "./routes";
 import Database from "../database";
 
 export class App {
     public server: express.Application;
-    private routes: Routes;
 
     constructor() {
         this.server = express();
         this.middlewares();
         Database();
-        this.routes = new Routes();
-
-        this.startRoutes();
+        this.routes();
     }
 
     private middlewares() {
@@ -32,7 +29,7 @@ export class App {
         this.server.use(express.urlencoded({ extended: false }));
     }
 
-    private startRoutes() {
-        this.server.use(this.routes.initRoutes());
+    private routes() {
+        this.server.use(routes);
     }
 }

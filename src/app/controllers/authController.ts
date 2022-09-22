@@ -2,18 +2,18 @@ import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
 
 import authConfig from "../../configs/auth.json";
-
 import Truck from "../models/Truck";
+
 import User from "../models/User";
 
-function generateToken(params = {}): string {
+function generateToken(params = {}) {
     return sign(params, authConfig.secret, {
         // expiresIn: 86400,
         expiresIn: 31536000,
     });
 }
 
-export class AuthController {
+class AuthController {
     public async register(req: Request, res: Response) {
         const { cpf, firstName, lastName, password, role, truckLicensePlate } = req.body;
 
@@ -25,9 +25,11 @@ export class AuthController {
                 const placa = await Truck.findOne({ licensePlate: truckLicensePlate });
                 if (!placa) return res.status(400).send({ message: "Placa não existe." });
             }
-            if (!firstName || firstName === "" || !lastName || lastName === "" || !password || password === "") return res.status(400).send({ message: "Dados inválidos." });
+            if (!firstName || firstName === "" || !lastName || lastName === "" || !password || password === "")
+                return res.status(400).send({ message: "Dados inválidos." });
 
-            if (role === 4 && (!truckLicensePlate || truckLicensePlate === "")) return res.status(400).send({ message: "Sem placa para o motorista." });
+            if (role === 4 && (!truckLicensePlate || truckLicensePlate === ""))
+                return res.status(400).send({ message: "Sem placa para o motorista." });
 
             var userObj = req.body;
             await User.create(userObj);
@@ -50,9 +52,11 @@ export class AuthController {
 
             user?.set("password", undefined);
 
-            const token = generateToken({ cpf: user?.cpf, role: user?.role });
-
-            return res.send({ message: "OK", user, token: token });
+            return res.send({
+                message: "OK",
+                user,
+                token: generateToken({ cpf: user?.cpf, role: user?.role }),
+            });
         } catch {
             return res.status(400).send({ message: "Falha no login." });
         }
@@ -78,3 +82,5 @@ export class AuthController {
         }
     }
 }
+
+export default new AuthController();

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import FuelStation, { FuelStationInput } from "../models/FuelStation";
+import FuelStation from "../models/FuelStation";
 
 class FuelStationController {
     public async getAll(req: Request, res: Response) {
@@ -9,26 +9,20 @@ class FuelStationController {
 
             return res.send({ message: "Lista de postos recuperada do banco de dados.", fuelStations });
         } catch {
-            return res.status(400).send({ message: "Erro: Falha na solicitação da lista de postos." });
+            return res.status(400).send({ message: "Falha na solicitação da lista de postos." });
         }
     }
 
     public async register(req: Request, res: Response) {
-        var { name, cnpj } = req.body;
-
+        const { name, cnpj } = req.body;
         try {
-            if (!req.role) return res.status(401).send({ message: "Erro: Não autorizado." });
+            if (!req.role || req.role > 3) {
+                return res.status(401).send({ message: "Não autorizado." });
+            }
 
-            name = name.trim();
-            cnpj = cnpj.replace(" ", "");
+            if (await FuelStation.findOne({ name: name })) return res.status(400).send({ message: "Posto já cadastrado." });
 
-            if (await FuelStation.findOne({ cnpj: cnpj })) return res.status(400).send({ message: "Erro: CNPJ do posto já cadastrado." });
-
-            var fuelStationObj: FuelStationInput = {
-                name: name,
-                cnpj: cnpj,
-                unit: "R3T",
-            };
+            var fuelStationObj = { "name": name, "cnpj": cnpj };
             await FuelStation.create(fuelStationObj);
 
             return res.send({ message: "Cadastro do posto concluído com sucesso." });
@@ -38,35 +32,37 @@ class FuelStationController {
     }
 
     public async update(req: Request, res: Response) {
-        const { name, cnpj } = req.body;
+        const { id, name } = req.body;
         try {
-            if (!req.role) return res.status(401).send({ message: "Erro: Não autorizado." });
+            if (!req.role || req.role > 3) {
+                return res.status(401).send({ message: "Não autorizado." });
+            }
 
-            var fuelStation = await FuelStation.findOne({ cnpj: cnpj });
-            if (!fuelStation) return res.status(400).send({ message: "Erro: Posto não encontrado." });
+            var fuelStation = await FuelStation.findOne({ _id: id });
+            if (!fuelStation) return res.status(400).send({ message: "Posto não encontrado." });
 
             fuelStation.name = name ?? fuelStation.name;
 
             await fuelStation.save();
 
-            return res.send({ message: "Atualização do posto concluída com sucesso." });
+            return res.send({ message: "Atualização do posto concluído com sucesso." });
         } catch {
-            return res.status(400).send({ message: "Erro: Falha na atualização do posto." });
+            return res.status(400).send({ message: "Falha na atualização do posto." });
         }
     }
 
     public async delete(req: Request, res: Response) {
-        const { cnpj } = req.body;
+        const { id } = req.body;
         try {
-            if (!req.role) {
-                return res.status(401).send({ message: "Erro: Não autorizado." });
+            if (!req.role || req.role > 3) {
+                return res.status(401).send({ message: "Não autorizado." });
             }
 
-            await FuelStation.findOneAndDelete({ cnpj: cnpj });
+            await FuelStation.findOneAndDelete({ _id: id });
 
             return res.send({ message: "Posto excluido do banco de dados." });
         } catch {
-            return res.status(400).send({ message: "Erro: Falha na exclusão do posto." });
+            return res.status(400).send({ message: "Falha na exclusão do posto." });
         }
     }
 }

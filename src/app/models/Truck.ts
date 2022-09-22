@@ -5,12 +5,11 @@ export interface TruckInput {
     odometer: number;
     capacity: number;
     average: number;
-    unit: string;
-}
-
-export interface TruckDocument extends TruckInput, mongoose.Document {
+  }
+  
+  export interface TruckDocument extends TruckInput, mongoose.Document {
     createdAt: Date;
-}
+  }
 
 const TruckSchema = new mongoose.Schema({
     licensePlate: {
@@ -28,10 +27,6 @@ const TruckSchema = new mongoose.Schema({
     },
     average: {
         type: Number,
-        required: true,
-    },
-    unit: {
-        type: String,
         required: true,
     },
     createdAt: {
