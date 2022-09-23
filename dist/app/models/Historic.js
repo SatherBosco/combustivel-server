@@ -61,6 +61,14 @@ const HistoricSchema = new mongoose_1.default.Schema({
         type: Number,
         required: true,
     },
+    arlaLiters: {
+        type: Number,
+        default: 0,
+    },
+    arlaPrice: {
+        type: Number,
+        default: 0,
+    },
     odometerImage: {
         type: String,
         required: true,

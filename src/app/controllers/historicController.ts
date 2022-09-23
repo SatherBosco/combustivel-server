@@ -50,7 +50,7 @@ class HistoricController {
     }
 
     public async register(req: Request, res: Response) {
-        const { truckLicensePlate, date, cpf, month, fuelStationName, currentOdometerValue, liters, value, cnpj } = req.body;
+        const { truckLicensePlate, date, cpf, month, fuelStationName, currentOdometerValue, liters, value, cnpj, arlaLiters, arlaPrice } = req.body;
 
         try {
             const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -103,11 +103,13 @@ class HistoricController {
                 km: kmValue,
                 average: averageValue,
                 standardAverage: standardAverage,
+                arlaLiters: arlaLiters || 0,
+                arlaPrice: arlaPrice || 0,
                 odometerImage: odometerImage.message,
                 invoiceImage: notaImage.message,
             };
             const historic = await Historic.create(historicObj);
-            
+
             truck.odometer = currentOdometerValue;
             await truck.save();
 
@@ -185,7 +187,7 @@ class HistoricController {
                 historicUp.average = historicUp.km / historicUp.liters;
                 await historicUp.save();
             }
-            
+
             await Historic.findOneAndDelete({ _id: historicId });
 
             const userInfos = await UserInfosComponents.updateUserInfos(req.userCPF, historic.referenceMonth);

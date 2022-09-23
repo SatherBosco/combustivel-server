@@ -15,6 +15,8 @@ export interface HistoricInput {
     km: number;
     average: number;
     standardAverage: number;
+    arlaLiters: number;
+    arlaPrice: number;
     odometerImage: string;
     invoiceImage: string;
 }
@@ -79,6 +81,14 @@ const HistoricSchema = new mongoose.Schema({
     standardAverage: {
         type: Number,
         required: true,
+    },
+    arlaLiters: {
+        type: Number,
+        default: 0,
+    },
+    arlaPrice: {
+        type: Number,
+        default: 0,
     },
     odometerImage: {
         type: String,
