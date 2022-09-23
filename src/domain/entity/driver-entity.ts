@@ -27,34 +27,33 @@ export class Driver {
         props.unit = this.normalizeUnit(props.unit);
 
         if (!this.isValidCPF(props.cpf)) {
-            return Result.fail<Driver>("Email is invalid");
+            return Result.fail<Driver>("CPF inválido.");
         }
 
         if (!this.isValidFirstname(props.firstname)) {
-            return Result.fail<Driver>("Email is invalid");
+            return Result.fail<Driver>("Primeiro nome inválido.");
         }
 
         if (!this.isValidLastname(props.lastname)) {
-            return Result.fail<Driver>("Email is invalid");
+            return Result.fail<Driver>("Sobrenome inválido.");
         }
 
         if (!this.isValidLicensePlate(props.licensePlate)) {
-            return Result.fail<Driver>("Email is invalid");
+            return Result.fail<Driver>("Placa inválida.");
         }
 
         if (!this.isValidCompany(props.company)) {
-            return Result.fail<Driver>("Email is invalid");
+            return Result.fail<Driver>("Empresa inválida.");
         }
 
         if (!this.isValidUnit(props.unit)) {
-            return Result.fail<Driver>("Email is invalid");
+            return Result.fail<Driver>("Unidade inválida.");
         }
 
         return Result.ok<Driver>(new Driver(props));
     }
 
     private static normalizeCPF(cpf: string) {
-        cpf = cpf.trim();
         cpf = cpf.replace(/\D/g, (letter) => (letter = ""));
         return cpf;
     }
@@ -137,12 +136,6 @@ export class Driver {
     //     this.firstname = this.verifyFirstname(firstname);
     // }
 
-    // private verifyFirstname(firstname: string) {
-    //     if (firstname.length < 3) throw new Error("Primeiro nome deve conter ao menos 3 caracteres.");
-
-    //     return firstname;
-    // }
-
     // get firstname() {
     //     return this.props.firstname;
     // }
@@ -153,15 +146,6 @@ export class Driver {
 
     // updatelastname(lastname: string) {
     //     this.lastname = this.verifyLastname(lastname);
-    // }
-
-    // private verifyLastname(lastname: string) {
-    //     lastname = lastname.trim();
-    //     lastname = lastname.replace(/(^\w{1})|(\s+\w{1})/g, (letter) => letter.toUpperCase());
-
-    //     // if (lastname.length < 3) throw new Error("Último nome deve conter ao menos 3 caracteres.");
-
-    //     return lastname;
     // }
 
     // get lastname() {
