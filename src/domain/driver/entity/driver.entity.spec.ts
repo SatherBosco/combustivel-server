@@ -1,4 +1,4 @@
-import { Driver, DriverProps } from "./driver-entity";
+import { Driver, DriverProps } from "./driver.entity";
 
 describe("Driver Tests", () => {
     test("Create Driver Sucess", () => {

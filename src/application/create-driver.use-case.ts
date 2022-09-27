@@ -1,5 +1,5 @@
-import { Driver } from "../domain/entity/driver-entity";
-import { DriverRepositoryInterface } from "../domain/repository/driver-repository";
+import { Driver } from "../domain/driver/entity/driver.entity";
+import { DriverRepositoryInterface } from "../domain/driver/repository/driver.repository";
 
 export class CreateDriverUseCase {
     constructor(private driverRepo: DriverRepositoryInterface) {}

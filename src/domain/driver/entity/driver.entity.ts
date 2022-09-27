@@ -1,4 +1,5 @@
-import { Result } from "./result-or-error";
+import { Result } from "../../../shared/result";
+import { ResultError } from "../../../shared/result-error";
 
 export type DriverProps = {
     cpf: string;
@@ -18,7 +19,7 @@ export class Driver {
         this.props = props;
     }
 
-    public static create(props: DriverProps): Result<Driver> {
+    public static create(props: DriverProps): Result<Driver | ResultError> {
         props.cpf = this.normalizeCPF(props.cpf);
         props.firstname = this.normalizeFirstname(props.firstname);
         props.lastname = this.normalizeLastname(props.lastname);
@@ -27,27 +28,27 @@ export class Driver {
         props.unit = this.normalizeUnit(props.unit);
 
         if (!this.isValidCPF(props.cpf)) {
-            return Result.fail<Driver>("CPF inválido.");
+            return Result.fail<ResultError>(new ResultError("CPF inválido.", 400));
         }
 
         if (!this.isValidFirstname(props.firstname)) {
-            return Result.fail<Driver>("Primeiro nome inválido.");
+            return Result.fail<ResultError>(new ResultError("Primeiro nome inválido.", 400));
         }
 
         if (!this.isValidLastname(props.lastname)) {
-            return Result.fail<Driver>("Sobrenome inválido.");
+            return Result.fail<ResultError>(new ResultError("Sobrenome inválido.", 400));
         }
 
         if (!this.isValidLicensePlate(props.licensePlate)) {
-            return Result.fail<Driver>("Placa inválida.");
+            return Result.fail<ResultError>(new ResultError("Placa inválida.", 400));
         }
 
         if (!this.isValidCompany(props.company)) {
-            return Result.fail<Driver>("Empresa inválida.");
+            return Result.fail<ResultError>(new ResultError("Empresa inválida.", 400));
         }
 
         if (!this.isValidUnit(props.unit)) {
-            return Result.fail<Driver>("Unidade inválida.");
+            return Result.fail<ResultError>(new ResultError("Unidade inválida.", 400));
         }
 
         return Result.ok<Driver>(new Driver(props));
@@ -59,14 +60,16 @@ export class Driver {
     }
 
     private static normalizeFirstname(firstname: string) {
+        firstname = firstname.toLowerCase();
         firstname = firstname.replace(/\s/g, (letter) => (letter = " "));
         firstname = firstname.replace(/[^a-zA-ZÀ-ü\s]/g, (letter) => (letter = ""));
         firstname = firstname.trim();
         firstname = firstname.replace(/(^\w{1})|(\s+\w{1})/g, (letter) => letter.toUpperCase());
         return firstname;
     }
-
+    
     private static normalizeLastname(lastname: string) {
+        lastname = lastname.toLowerCase();
         lastname = lastname.replace(/\s/g, (letter) => (letter = " "));
         lastname = lastname.replace(/[^a-zA-ZÀ-ü\s]/g, (letter) => (letter = ""));
         lastname = lastname.trim();
@@ -131,60 +134,6 @@ export class Driver {
     get fullname() {
         return `${this.props.firstname} ${this.props.lastname}`;
     }
-
-    // updateFirstname(firstname: string) {
-    //     this.firstname = this.verifyFirstname(firstname);
-    // }
-
-    // get firstname() {
-    //     return this.props.firstname;
-    // }
-
-    // private set firstname(value: string) {
-    //     this.props.firstname = value;
-    // }
-
-    // updatelastname(lastname: string) {
-    //     this.lastname = this.verifyLastname(lastname);
-    // }
-
-    // get lastname() {
-    //     return this.props.lastname;
-    // }
-
-    // private set lastname(value: string) {
-    //     this.props.lastname = value;
-    // }
-
-    // updatePassword(password: string) {
-    //     this.password = password;
-    //     //mudar pra maiusculo
-    //     //valor alguns caracteres
-    //     //validacoes
-    // }
-
-    // get password() {
-    //     return this.props.password;
-    // }
-
-    // private set password(value: string) {
-    //     this.props.password = value;
-    // }
-
-    // updateLicensePlate(licensePlate: string) {
-    //     this.licensePlate = licensePlate;
-    //     //mudar pra maiusculo
-    //     //valor alguns caracteres
-    //     //validacoes
-    // }
-
-    // get licensePlate() {
-    //     return this.props.licensePlate;
-    // }
-
-    // private set licensePlate(value: string) {
-    //     this.props.licensePlate = value;
-    // }
 
     toJSON() {
         return {

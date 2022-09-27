@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 
 import { Routes } from "./routes";
-import Database from "../database";
+import Database from "../infra/database";
 
 export class App {
     public server: express.Application;
