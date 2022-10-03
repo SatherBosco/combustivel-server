@@ -80,15 +80,17 @@ class HistoricController {
                 const truck = yield Truck_1.default.findOne({ licensePlate: truckLicensePlate });
                 if (!truck)
                     return res.status(400).send({ message: "Caminhão não encontrado." });
-                if (truck.odometer === currentOdometerValue)
+                const previousOdometerValue = truck.odometer;
+                if (previousOdometerValue === currentOdometerValue)
                     return res.status(400).send({ message: "Odometro do abastecimento igual ao atual do caminhão." });
+                truck.odometer = currentOdometerValue;
+                yield truck.save();
                 const uploadImagesService = new uploadImagesComponents_1.default();
                 const odometerImage = yield uploadImagesService.execute(files["odometer"][0]);
                 const notaImage = yield uploadImagesService.execute(files["nota"][0]);
                 deleteFiles.delete();
                 if (!odometerImage.sucess || !notaImage.sucess)
                     return res.status(400).send({ message: !odometerImage.sucess ? odometerImage.message : notaImage.message });
-                const previousOdometerValue = truck.odometer;
                 const kmValue = currentOdometerValue - previousOdometerValue;
                 const averageValue = kmValue / liters;
                 const standardAverage = truck.average;
@@ -113,8 +115,6 @@ class HistoricController {
                     invoiceImage: notaImage.message,
                 };
                 const historic = yield Historic_1.default.create(historicObj);
-                truck.odometer = currentOdometerValue;
-                yield truck.save();
                 const userInfos = yield userInfosComponents_1.default.updateUserInfos(cpf, month);
                 return res.send({ message: "Abastecimento cadastrado com sucesso.", userInfos, historic });
             }

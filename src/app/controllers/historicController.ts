@@ -73,7 +73,11 @@ class HistoricController {
             const truck = await Truck.findOne({ licensePlate: truckLicensePlate });
             if (!truck) return res.status(400).send({ message: "Caminhão não encontrado." });
 
-            if (truck.odometer === currentOdometerValue) return res.status(400).send({ message: "Odometro do abastecimento igual ao atual do caminhão." });
+            const previousOdometerValue = truck.odometer;
+            if (previousOdometerValue === currentOdometerValue) return res.status(400).send({ message: "Odometro do abastecimento igual ao atual do caminhão." });
+
+            truck.odometer = currentOdometerValue;
+            await truck.save();
 
             const uploadImagesService = new UploadImagesService();
 
@@ -83,7 +87,6 @@ class HistoricController {
 
             if (!odometerImage.sucess || !notaImage.sucess) return res.status(400).send({ message: !odometerImage.sucess ? odometerImage.message : notaImage.message });
 
-            const previousOdometerValue = truck.odometer;
             const kmValue = currentOdometerValue - previousOdometerValue;
             const averageValue = kmValue / liters;
             const standardAverage = truck.average;
@@ -109,9 +112,6 @@ class HistoricController {
                 invoiceImage: notaImage.message,
             };
             const historic = await Historic.create(historicObj);
-
-            truck.odometer = currentOdometerValue;
-            await truck.save();
 
             const userInfos = await UserInfosComponents.updateUserInfos(cpf, month);
 
