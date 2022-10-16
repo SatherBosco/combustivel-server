@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
 
 import authConfig from "../../configs/auth.json";
-import Manager, { ManagerInput, Role } from "../models/Manager";
+import Manager, { ManagerInput, Role } from "../../infra/database/models/Manager";
 
 export default class AuthManagerController {
     generateAccessToken(params = {}) {

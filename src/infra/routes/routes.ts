@@ -1,18 +1,18 @@
 import { Router } from "express";
-import authVerify from "./middlewares/auth";
+import authVerify from "../../application/middlewares/auth";
 import multer from "multer";
 
-import HealthController from "./controllers/healthController";
-import { AuthController } from "./controllers/authController";
-import TruckController from "./controllers/truckController";
-import FuelStationController from "./controllers/fuelStationController";
-import UserInfoController from "./controllers/userInfoController";
-import HistoricController from "./controllers/historicController";
-import PriceController from "./controllers/priceController";
+import HealthController from "../../application/controllers/healthController";
+import { AuthController } from "../../application/controllers/authController";
+import TruckController from "../../application/controllers/truckController";
+import FuelStationController from "../../application/controllers/fuelStationController";
+import UserInfoController from "../../application/controllers/userInfoController";
+import HistoricController from "../../application/controllers/historicController";
+import PriceController from "../../application/controllers/priceController";
 
-import uploadConfig from "./middlewares/upload";
+import uploadConfig from "../../application/middlewares/upload";
 
-export class Routes {
+export default class Routes {
     routes: Router;
     upload: multer.Multer;
 

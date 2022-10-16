@@ -7,6 +7,7 @@ export type DriverProps = {
     lastname: string;
     password: string;
     licensePlate: string;
+    operation: string;
     company: string;
     unit: string;
 };

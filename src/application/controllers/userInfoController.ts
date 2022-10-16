@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import User from "../models/User";
+import User from "../../infra/database/models/User";
 
-import UserInfos from "../models/UserInfos";
+import UserInfos from "../../infra/database/models/UserInfos";
 
 class UserInfosController {
     public async getOneDriver(req: Request, res: Response) {

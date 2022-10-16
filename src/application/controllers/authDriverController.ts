@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
 
 import authConfig from "../../configs/auth.json";
-import Truck from "../models/Truck";
-import Driver, { DriverInput } from "../models/Driver";
+import Truck from "../../infra/database/models/Truck";
+import Driver, { DriverInput } from "../../infra/database/models/Driver";
 
 export default class AuthDriverController {
     generateAccessToken(params = {}) {

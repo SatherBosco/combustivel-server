@@ -3,9 +3,9 @@ import DeleteFiles from "../components/deleteFilesComponent";
 import UploadImagesService from "../components/uploadImagesComponents";
 import UserInfosComponents from "../components/userInfosComponents";
 
-import Historic from "../models/Historic";
-import Truck from "../models/Truck";
-import User from "../models/User";
+import Historic from "../../infra/database/models/Historic";
+import Truck from "../../infra/database/models/Truck";
+import User from "../../infra/database/models/User";
 
 class HistoricController {
     public async getAll(req: Request, res: Response) {

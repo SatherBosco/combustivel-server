@@ -1,8 +1,7 @@
-import Historic from "../models/Historic";
-import Price from "../models/Price";
-import User from "../models/User";
-import UserInfos from "../models/UserInfos";
-import preco from "../shared/settings.json"
+import Historic from "../../infra/database/models/Historic";
+import Price from "../../infra/database/models/Price";
+import User from "../../infra/database/models/User";
+import UserInfos from "../../infra/database/models/UserInfos";
 
 class UserInfosComponents {
     public async updateUserInfos(cpf: string, referenceMonth: number) {

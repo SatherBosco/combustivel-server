@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import FuelStation, { FuelStationInput } from "../models/FuelStation";
+import FuelStation, { FuelStationInput } from "../../infra/database/models/FuelStation";
 
 class FuelStationController {
     public async getAll(req: Request, res: Response) {

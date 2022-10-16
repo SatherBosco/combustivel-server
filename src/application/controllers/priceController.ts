@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import userInfosComponents from "../components/userInfosComponents";
-import Price from "../models/Price";
-import UserInfos from "../models/UserInfos";
+import Price from "../../infra/database/models/Price";
+import UserInfos from "../../infra/database/models/UserInfos";
 
 class PriceController {
     public async getPrice(req: Request, res: Response) {

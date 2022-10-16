@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors";
 
-import { Routes } from "./routes";
-import Database from "../infra/database";
+import Routes from "../routes/routes";
+import Database from "../database";
 
-export class App {
+export default class App {
     public server: express.Application;
     private routes: Routes;
 
