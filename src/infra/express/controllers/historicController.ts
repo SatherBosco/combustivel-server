@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import DeleteFiles from "../components/deleteFilesComponent";
-import UploadImagesService from "../components/uploadImagesComponents";
-import UserInfosComponents from "../components/userInfosComponents";
+import DeleteFiles from "../../../application/use-case/deleteFilesComponent";
+import UploadImagesService from "../../../application/components/uploadImagesComponents";
+import UserInfosComponents from "../../../application/components/userInfosComponents";
 
-import Historic from "../../infra/database/models/Historic";
-import Truck from "../../infra/database/models/Truck";
+import Historic from "../../database/models/Historic";
+import Truck from "../../database/models/Truck";
 import User from "../../infra/database/models/User";
 
 class HistoricController {

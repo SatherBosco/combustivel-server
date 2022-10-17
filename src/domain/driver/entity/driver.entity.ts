@@ -1,5 +1,8 @@
+import { CreateDriverInput } from "../../../application/use-case/create-driver.use-case";
+import { DriverInput } from "../../../infra/database/models/Driver";
 import { Either, left, right } from "../../../shared/either";
-import { RequiredParametersError } from "../../../shared/required-parameters.error";
+import { ParametersError } from "../../../shared/parameters.error";
+import { ParametersSuccess } from "../../../shared/parameters.success";
 
 export type DriverProps = {
     cpf: string;
@@ -13,28 +16,17 @@ export type DriverProps = {
     createdAt: Date;
 };
 
-export type DriverInput = {
-    cpf: string;
-    firstName: string;
-    lastName: string;
-    password: string;
-    licensePlate: string;
-    company: string;
-    unit: string;
-    operation: string;
-};
-
-type DriverResponse = Either<RequiredParametersError, DriverProps>;
+type DriverResponse = Either<ParametersError, CreateDriverInput>;
 
 export class Driver {
     public readonly createdAt: Date;
     public props: Required<DriverProps>;
-    private constructor(props: DriverInput) {
+    private constructor(props: DriverProps) {
         this.props = props;
         this.createdAt = new Date();
     }
 
-    public static create(props: DriverProps): DriverResponse {
+    public static create(props: CreateDriverInput): DriverResponse {
         props.cpf = this.normalizeCPF(props.cpf);
         props.firstName = this.normalizeFirstname(props.firstName);
         props.lastName = this.normalizeLastname(props.lastName);
@@ -44,31 +36,31 @@ export class Driver {
         props.operation = this.normalizeOperation(props.operation);
 
         if (!this.isValidCPF(props.cpf)) {
-            return left(new RequiredParametersError("CPF inválido.", 400));
+            return left(new ParametersError("CPF inválido.", 400));
         }
 
         if (!this.isValidFirstname(props.firstName)) {
-            return left(new RequiredParametersError("Primeiro nome inválido.", 400));
+            return left(new ParametersError("Primeiro nome inválido.", 400));
         }
 
         if (!this.isValidLastname(props.lastName)) {
-            return left(new RequiredParametersError("Sobrenome inválido.", 400));
+            return left(new ParametersError("Sobrenome inválido.", 400));
         }
 
         if (!this.isValidLicensePlate(props.licensePlate)) {
-            return left(new RequiredParametersError("Placa inválida.", 400));
+            return left(new ParametersError("Placa inválida.", 400));
         }
         
         if (!this.isValidCompany(props.company)) {
-            return left(new RequiredParametersError("Empresa inválida.", 400));
+            return left(new ParametersError("Empresa inválida.", 400));
         }
         
         if (!this.isValidUnit(props.unit)) {
-            return left(new RequiredParametersError("Unidade inválida.", 400));
+            return left(new ParametersError("Unidade inválida.", 400));
         }
 
         if (!this.isValidOperation(props.operation)) {
-            return left(new RequiredParametersError("Empresa inválida.", 400));
+            return left(new ParametersError("Operação inválida.", 400));
         }
 
         return right(props);
@@ -161,16 +153,5 @@ export class Driver {
         if (unit.length !== 3) return false;
 
         return true;
-    }
-
-    get fullname() {
-        return `${this.props.firstName} ${this.props.lastName}`;
-    }
-
-    toJSON() {
-        return {
-            ...this.props,
-            createdAt: this.createdAt,
-        };
     }
 }

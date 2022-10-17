@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import upload from "../middlewares/upload";
+import upload from "../../infra/express/middlewares/upload";
 
 class DeleteFiles {
     async delete(fileName: string) {

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import Truck, { TruckInput } from "../../infra/database/models/Truck";
+import Truck, { TruckInput } from "../../database/models/Truck";
 
 class TruckController {
     public async getAll(req: Request, res: Response) {

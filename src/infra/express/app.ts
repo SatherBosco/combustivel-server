@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 
-import Routes from "../routes";
+import Routes from "./routes";
 import Database from "../database";
 
 export default class App {

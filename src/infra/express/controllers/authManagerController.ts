@@ -2,34 +2,31 @@ import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
 
 import authConfig from "../../configs/auth.json";
-import Truck from "../../infra/database/models/Truck";
-import Driver, { DriverInput } from "../../infra/database/models/Driver";
+import Manager, { ManagerInput, Role } from "../../database/models/Manager";
 
-export default class AuthDriverController {
-    private static generateAccessToken(params = {}) {
-        return sign(params, authConfig["driver-access"], {
-            expiresIn: 31536000,
+export default class AuthManagerController {
+    generateAccessToken(params = {}) {
+        return sign(params, authConfig["manager-access"], {
+            expiresIn: 86400,
         });
     }
 
     public async register(req: Request, res: Response) {
-        var { cpf, firstName, lastName, password, licensePlate } = req.body;
+        var { cpf, firstName, lastName, password } = req.body;
 
         try {
-            if (!req.role) return res.status(400).send({ message: "Erro: Não autorizado." });
+            if (!req.role || (req.role !== Role.Director && req.role !== Role.Master))
+                return res.status(400).send({ message: "Erro: Não autorizado." });
 
             cpf = cpf.replace(" ", "");
             firstName = firstName.trim();
             lastName = lastName.trim();
-            licensePlate = licensePlate.trim();
+            password = password.trim();
 
-            if (!cpf || cpf === "" || cpf.length !== 11) return res.status(400).send({ message: "Erro: CPF inválido. Não pode ser vazio." });
+            if (!cpf || cpf === "" || cpf.length !== 11 || cpf.includes(" "))
+                return res.status(400).send({ message: "Erro: CPF inválido. Não pode ser vazio." });
 
-            if (await Driver.findOne({ cpf })) return res.status(400).send({ message: "Erro: CPF já registrado." });
-
-            if (!licensePlate && licensePlate === "") return res.status(400).send({ message: "Erro: Sem placa." });
-
-            if (!(await Truck.findOne({ licensePlate: licensePlate }))) return res.status(400).send({ message: "Erro: Placa não existe." });
+            if (await Manager.findOne({ cpf })) return res.status(400).send({ message: "Erro: CPF já registrado." });
 
             if (!firstName || firstName === "" || firstName.length < 3)
                 return res.status(400).send({ message: "Erro: Primeiro nome inválido. Não pode ser vazio e deve conter ao menos 3 caracteres." });
@@ -38,19 +35,21 @@ export default class AuthDriverController {
                 return res.status(400).send({ message: "Erro: Sobrenome inválido. Não pode ser vazio e deve conter ao menos 3 caracteres." });
 
             if (!password || password === "" || password.length < 8 || password.includes(" "))
-                return res.status(400).send({
-                    message: "Erro: Senha inválida. Não pode ser vazio, não pode conter espaço em branco e deve conter ao menos 8 caracteres.",
-                });
+                return res
+                    .status(400)
+                    .send({
+                        message: "Erro: Senha inválida. Não pode ser vazio, não pode conter espaço em branco e deve conter ao menos 8 caracteres.",
+                    });
 
-            var driverObj: DriverInput = {
+            var managerObj: ManagerInput = {
                 cpf: cpf,
                 firstName: firstName,
                 lastName: lastName,
                 password: password,
-                licensePlate: licensePlate,
+                role: Role.Manager,
                 unit: "R3T",
             };
-            await Driver.create(driverObj);
+            await Manager.create(managerObj);
 
             return res.send({ message: "Cadastro concluído com sucesso." });
         } catch {
@@ -62,17 +61,17 @@ export default class AuthDriverController {
         const { cpf, password } = req.body;
 
         try {
-            var driver = await Driver.findOne({ cpf }).select("+password");
+            var manager = await Manager.findOne({ cpf }).select("+password");
 
-            if (!driver || (await driver?.comparePassword(password)) === false)
+            if (!manager || (await manager?.comparePassword(password)) === false)
                 return res.status(401).send({ message: "Erro: Username e/ou senha inválido." });
 
-            driver?.set("password", undefined);
+            manager?.set("password", undefined);
 
             return res.send({
                 message: "Login realizado com sucesso.",
-                driver,
-                token: this.generateAccessToken({ cpf: driver?.cpf }),
+                manager,
+                token: this.generateAccessToken({ cpf: manager?.cpf, role: manager?.role }),
             });
         } catch {
             return res.status(400).send({ message: "Erro: Falha no login." });
@@ -82,20 +81,21 @@ export default class AuthDriverController {
     public async changePassword(req: Request, res: Response) {
         const { newPassword, cpf } = req.body;
 
-        if (!req.role && req.userCPF !== cpf) return res.status(401).send({ message: "Não autorizado." });
+        if (!req.role || (req.role !== Role.Master && req.role !== Role.Director && req.userCPF !== cpf))
+            return res.status(401).send({ message: "Não autorizado." });
 
         try {
-            var driver = await Driver.findOne({ cpf }).select("+password");
+            var manager = await Manager.findOne({ cpf }).select("+password");
 
-            if (!driver) return res.status(400).send({ message: "Erro: CPF não encontrado." });
+            if (!manager) return res.status(400).send({ message: "Erro: CPF não encontrado." });
 
             if (!newPassword || newPassword === "" || newPassword.length < 8 || newPassword.includes(" "))
                 return res.status(400).send({
                     message: "Erro: Senha inválida. Não pode ser vazio, não pode conter espaço em branco e deve conter ao menos 8 caracteres.",
                 });
 
-            driver.password = newPassword;
-            await driver.save();
+            manager.password = newPassword;
+            await manager.save();
 
             return res.send({ message: "Senha alterada com sucesso." });
         } catch {

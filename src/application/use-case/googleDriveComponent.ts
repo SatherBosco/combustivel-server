@@ -1,7 +1,7 @@
 import { google } from "googleapis";
 import fs from "fs";
 import path from "path";
-import upload from "../middlewares/upload";
+import upload from "../../infra/express/middlewares/upload";
 
 export interface DriveUploadStatus {
     sucess: boolean;

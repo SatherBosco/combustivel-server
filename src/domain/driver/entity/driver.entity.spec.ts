@@ -10,6 +10,7 @@ describe("Driver Tests", () => {
             licensePlate: "AAA0000",
             company: "R3T",
             unit: "MTZ",
+            operation: "OPT"
         };
         let driver = Driver.create(driverProps);
         expect(driver.isSuccess).toBe(true);
