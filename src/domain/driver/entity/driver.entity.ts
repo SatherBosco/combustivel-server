@@ -1,58 +1,77 @@
-import { Result } from "../../../shared/result";
-import { ResultError } from "../../../shared/result-error";
+import { Either, left, right } from "../../../shared/either";
+import { RequiredParametersError } from "../../../shared/required-parameters.error";
 
 export type DriverProps = {
     cpf: string;
-    firstname: string;
-    lastname: string;
+    firstName: string;
+    lastName: string;
     password: string;
     licensePlate: string;
-    operation: string;
     company: string;
     unit: string;
+    operation: string;
+    createdAt: Date;
 };
+
+export type DriverInput = {
+    cpf: string;
+    firstName: string;
+    lastName: string;
+    password: string;
+    licensePlate: string;
+    company: string;
+    unit: string;
+    operation: string;
+};
+
+type DriverResponse = Either<RequiredParametersError, DriverProps>;
 
 export class Driver {
     public readonly createdAt: Date;
     public props: Required<DriverProps>;
-    private constructor(props: DriverProps) {
-        this.createdAt = new Date();
+    private constructor(props: DriverInput) {
         this.props = props;
+        this.createdAt = new Date();
     }
 
-    public static create(props: DriverProps): Result<Driver | ResultError> {
+    public static create(props: DriverProps): DriverResponse {
         props.cpf = this.normalizeCPF(props.cpf);
-        props.firstname = this.normalizeFirstname(props.firstname);
-        props.lastname = this.normalizeLastname(props.lastname);
+        props.firstName = this.normalizeFirstname(props.firstName);
+        props.lastName = this.normalizeLastname(props.lastName);
         props.licensePlate = this.normalizeLicensePlate(props.licensePlate);
         props.company = this.normalizeCompany(props.company);
         props.unit = this.normalizeUnit(props.unit);
+        props.operation = this.normalizeOperation(props.operation);
 
         if (!this.isValidCPF(props.cpf)) {
-            return Result.fail<ResultError>(new ResultError("CPF inválido.", 400));
+            return left(new RequiredParametersError("CPF inválido.", 400));
         }
 
-        if (!this.isValidFirstname(props.firstname)) {
-            return Result.fail<ResultError>(new ResultError("Primeiro nome inválido.", 400));
+        if (!this.isValidFirstname(props.firstName)) {
+            return left(new RequiredParametersError("Primeiro nome inválido.", 400));
         }
 
-        if (!this.isValidLastname(props.lastname)) {
-            return Result.fail<ResultError>(new ResultError("Sobrenome inválido.", 400));
+        if (!this.isValidLastname(props.lastName)) {
+            return left(new RequiredParametersError("Sobrenome inválido.", 400));
         }
 
         if (!this.isValidLicensePlate(props.licensePlate)) {
-            return Result.fail<ResultError>(new ResultError("Placa inválida.", 400));
+            return left(new RequiredParametersError("Placa inválida.", 400));
         }
-
+        
         if (!this.isValidCompany(props.company)) {
-            return Result.fail<ResultError>(new ResultError("Empresa inválida.", 400));
+            return left(new RequiredParametersError("Empresa inválida.", 400));
         }
-
+        
         if (!this.isValidUnit(props.unit)) {
-            return Result.fail<ResultError>(new ResultError("Unidade inválida.", 400));
+            return left(new RequiredParametersError("Unidade inválida.", 400));
         }
 
-        return Result.ok<Driver>(new Driver(props));
+        if (!this.isValidOperation(props.operation)) {
+            return left(new RequiredParametersError("Empresa inválida.", 400));
+        }
+
+        return right(props);
     }
 
     private static normalizeCPF(cpf: string) {
@@ -89,11 +108,17 @@ export class Driver {
         company = company.replace(/[^A-Z0-9]/g, (letter) => (letter = ""));
         return company;
     }
-
+    
     private static normalizeUnit(unit: string) {
         unit = unit.toUpperCase();
         unit = unit.replace(/[^A-Z0-9]/g, (letter) => (letter = ""));
         return unit;
+    }
+
+    private static normalizeOperation(operation: string) {
+        operation = operation.toUpperCase();
+        operation = operation.replace(/[^A-Z0-9]/g, (letter) => (letter = ""));
+        return operation;
     }
 
     private static isValidCPF(cpf: string) {
@@ -126,6 +151,12 @@ export class Driver {
         return true;
     }
 
+    private static isValidOperation(operation: string) {
+        if (operation.length !== 3) return false;
+
+        return true;
+    }
+
     private static isValidUnit(unit: string) {
         if (unit.length !== 3) return false;
 
@@ -133,7 +164,7 @@ export class Driver {
     }
 
     get fullname() {
-        return `${this.props.firstname} ${this.props.lastname}`;
+        return `${this.props.firstName} ${this.props.lastName}`;
     }
 
     toJSON() {

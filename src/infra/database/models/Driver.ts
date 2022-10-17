@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import { DriverProps } from "../../../domain/driver/entity/driver.entity";
 
 export interface DriverInput {
     cpf: string;
@@ -10,7 +11,7 @@ export interface DriverInput {
     unit: string;
 }
 
-export interface DriverDocument extends DriverInput, mongoose.Document {
+export interface DriverDocument extends DriverProps, mongoose.Document {
     fullName: string;
     createdAt: Date;
     comparePassword(candidatePassword: string): Promise<boolean>;

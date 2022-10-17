@@ -4,8 +4,8 @@ describe("Driver Tests", () => {
     test("Create Driver Sucess", () => {
         let driverProps: DriverProps = {
             cpf: "000.000.00-000",
-            firstname: "Joao vitor",
-            lastname: " Sather Bosco ",
+            firstName: "Joao vitor",
+            lastName: " Sather Bosco ",
             password: "123456789",
             licensePlate: "AAA0000",
             company: "R3T",
@@ -22,8 +22,8 @@ describe("Driver Tests", () => {
     test("Create Driver Name Error", () => {
         let driverProps: DriverProps | Error = {
             cpf: "00000000000",
-            firstname: "Jo",
-            lastname: "",
+            firstName: "Jo",
+            lastName: "",
             password: "123456789",
             licensePlate: "AAA0000",
             company: "R3T",
@@ -38,8 +38,8 @@ describe("Driver Tests", () => {
     test("Create Driver CPF Error", () => {
         let driverProps: DriverProps | Error = {
             cpf: "0000000000",
-            firstname: "Joao",
-            lastname: "Bosco",
+            firstName: "Joao",
+            lastName: "Bosco",
             password: "123456789",
             licensePlate: "AAA0000",
             company: "R3T",

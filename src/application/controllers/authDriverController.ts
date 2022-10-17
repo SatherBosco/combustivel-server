@@ -6,7 +6,7 @@ import Truck from "../../infra/database/models/Truck";
 import Driver, { DriverInput } from "../../infra/database/models/Driver";
 
 export default class AuthDriverController {
-    generateAccessToken(params = {}) {
+    private static generateAccessToken(params = {}) {
         return sign(params, authConfig["driver-access"], {
             expiresIn: 31536000,
         });
