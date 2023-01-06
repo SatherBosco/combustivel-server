@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 
 import routes from "./routes";
-import Database from "../database";
+import { DatabaseFuel } from "../database";
 
 export class App {
     public server: express.Application;
@@ -10,7 +10,8 @@ export class App {
     constructor() {
         this.server = express();
         this.middlewares();
-        Database();
+        DatabaseFuel();
+        // DatabaseDashboard();
         this.routes();
     }
 

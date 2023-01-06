@@ -13,6 +13,7 @@ const fuelStationController_1 = __importDefault(require("./controllers/fuelStati
 const userInfoController_1 = __importDefault(require("./controllers/userInfoController"));
 const historicController_1 = __importDefault(require("./controllers/historicController"));
 const priceController_1 = __importDefault(require("./controllers/priceController"));
+const maintenanceController_1 = __importDefault(require("./controllers/maintenanceController"));
 const upload_1 = __importDefault(require("./middlewares/upload"));
 const routes = (0, express_1.Router)();
 const upload = (0, multer_1.default)(upload_1.default);
@@ -39,16 +40,33 @@ routes.put("/fuel-station/", fuelStationController_1.default.update);
 routes.delete("/fuel-station/", fuelStationController_1.default.delete);
 // USER INFOS -------------------------------------------------------------------
 routes.get("/user-infos/one/:cpf", userInfoController_1.default.getOneDriver);
+routes.get("/user-infos/all-of-one/:cpf", userInfoController_1.default.getAllOfOneDriver);
 routes.get("/user-infos/one-specific-month/:cpf&:dateMonth", userInfoController_1.default.getOneDriverSpecificMonth);
 routes.get("/user-infos/all/:dateMonth", userInfoController_1.default.getAllDrivers);
 // HISTORIC ---------------------------------------------------------------------
 routes.get("/historic/:initialDate&:finalDate", historicController_1.default.getAll);
 routes.get("/historic/by-truck/:initialDate&:finalDate&:truckLicensePlate", historicController_1.default.getAllByTruck);
 routes.get("/historic/by-user/:initialDate&:finalDate&:cpf", historicController_1.default.getAllByUser);
-routes.post("/historic/", upload.fields([{ name: 'odometer', maxCount: 1 }, { name: 'nota', maxCount: 1 }]), historicController_1.default.register);
+routes.post("/historic/", upload.fields([
+    { name: "odometer", maxCount: 1 },
+    { name: "nota", maxCount: 1 },
+]), historicController_1.default.register);
 // routes.put("/historic/", HistoricController.update);
 routes.delete("/historic/", historicController_1.default.delete);
 // PRICE ------------------------------------------------------------------------
 routes.get("/price/:month", priceController_1.default.getPrice);
 routes.post("/price/", priceController_1.default.setPrice);
+// MANUTENCAO -------------------------------------------------------------------
+routes.get("/maintenance/", maintenanceController_1.default.getAll);
+routes.get("/maintenance/:initialDate&:finalDate&:cpf", maintenanceController_1.default.getAllByUser);
+routes.post("/maintenance/", upload.fields([
+    { name: "imageOne", maxCount: 1 },
+    { name: "imageTwo", maxCount: 1 },
+    { name: "imageThree", maxCount: 1 },
+]), maintenanceController_1.default.create);
+routes.post("/maintenance/:protocol", upload.fields([
+    { name: "imageOne", maxCount: 1 },
+    { name: "imageTwo", maxCount: 1 },
+    { name: "imageThree", maxCount: 1 },
+]), maintenanceController_1.default.update);
 exports.default = routes;
