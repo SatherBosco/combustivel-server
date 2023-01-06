@@ -76,7 +76,7 @@ class UserInfosController {
                         var km = 0;
                         var liters = 0;
                         var award = 0;
-                        var price = yield UserInfosController.getPriceByMonth(historicsByDB[index].date.getMonth());
+                        var price = yield UserInfosController.getPriceByMonth(historicsByDB[index].date.getMonth() + 1);
                         filteredByMonth.forEach((hist) => {
                             km += hist.km;
                             liters += hist.liters;
