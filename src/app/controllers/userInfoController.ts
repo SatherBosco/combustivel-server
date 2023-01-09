@@ -115,7 +115,9 @@ class UserInfosController {
 
             const userInfos = await UserInfos.findOne({ cpf: cpf, referenceMonth: thisMonth });
 
-            return res.send({ message: "Informações do motorista recuperada do banco de dados.", userInfos });
+            const truck = user.truckLicensePlate;
+
+            return res.send({ message: "Informações do motorista recuperada do banco de dados.", userInfos, truck });
         } catch {
             return res.status(400).send({ message: "Falha na solicitação das informações do motorista." });
         }

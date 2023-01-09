@@ -107,7 +107,8 @@ class UserInfosController {
                     return res.status(400).send({ message: "Usuário não encontrado." });
                 const thisMonth = new Date().getMonth() + 1;
                 const userInfos = yield UserInfos_1.default.findOne({ cpf: cpf, referenceMonth: thisMonth });
-                return res.send({ message: "Informações do motorista recuperada do banco de dados.", userInfos });
+                const truck = user.truckLicensePlate;
+                return res.send({ message: "Informações do motorista recuperada do banco de dados.", userInfos, truck });
             }
             catch (_a) {
                 return res.status(400).send({ message: "Falha na solicitação das informações do motorista." });
