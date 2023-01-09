@@ -17,7 +17,7 @@ class HealthController {
     }
     appVersion(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            return res.send({ message: "1.0.0" });
+            return res.send({ message: "1.1.0" });
         });
     }
     dashboardVersion(req, res) {
